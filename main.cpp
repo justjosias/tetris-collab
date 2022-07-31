@@ -1,13 +1,45 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <SDL.h>
 
 using namespace std;
 
-class Game
+class Block
+{
+      public:
+	vector<tuple<int, int>> locations;
+	int offset_x;
+	int offset_y;
+
+	Block()
+	{
+		this->locations.push_back(make_tuple(0, 0));
+		this->offset_x = 0;
+		this->offset_y = 0;
+	}
+
+	auto current() -> vector<tuple<int, int>>
+	{
+		vector<tuple<int, int>> new_loc;
+		for (auto loc : locations) {
+			new_loc.push_back(make_tuple(get<0>(loc) + offset_x,
+						     get<1>(loc) + offset_y));
+		}
+		return new_loc;
+	}
+};
+
+class GameState
+{
+      public:
+	GameState() {}
+};
+
+class GameContext
 {
       public:
 	int height;
@@ -17,7 +49,9 @@ class Game
 	SDL_Surface *window_surface;
 	SDL_Renderer *renderer;
 
-	Game()
+        GameState state;
+
+	GameContext()
 	{
 		this->height = 20;
 		this->width = 10;
@@ -72,10 +106,10 @@ class Game
 		SDL_RenderPresent(renderer);
 	}
 
-	~Game()
+	~GameContext()
 	{
-                SDL_DestroyRenderer(renderer);
-                SDL_FreeSurface(window_surface);
+		SDL_DestroyRenderer(renderer);
+		SDL_FreeSurface(window_surface);
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 	}
@@ -83,10 +117,10 @@ class Game
 
 int main(int argc, char **argv)
 {
-	Game game;
+	GameContext ctx;
 
-        game.draw_circle(200, 100, 50);
-	SDL_UpdateWindowSurface(game.window);
+	ctx.draw_circle(200, 100, 50);
+	SDL_UpdateWindowSurface(ctx.window);
 
 	SDL_Event event;
 	while (true) {
