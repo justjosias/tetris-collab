@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,6 +15,7 @@ class Game
 
 	SDL_Window *window;
 	SDL_Surface *window_surface;
+	SDL_Renderer *renderer;
 
 	Game()
 	{
@@ -30,34 +32,69 @@ class Game
 		if (window == nullptr) {
 			throw "Failed to create window";
 		}
-		this->window_surface = SDL_GetWindowSurface(window);
 
+		this->window_surface = SDL_GetWindowSurface(window);
 		if (window_surface == nullptr) {
 			throw "Failed to get window surface";
 		}
+
+		this->renderer =
+		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	}
 
-	void decorate_window() {
-                
-        }
+	void decorate_window()
+	{
+		int x = 100;
+		int y = 100;
+		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+		SDL_RenderDrawPoint(this->renderer, x, y);
+		SDL_RenderPresent(renderer);
+	}
 
-        ~Game() {
-                SDL_DestroyWindow(window);
-                SDL_Quit();
-        }
+	void draw_circle(int center_x, int center_y, int radius_)
+	{
+		// Setting the color to be RED with 100% opaque (0% trasparent).
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+		// Drawing circle
+		for (int x = center_x - radius_; x <= center_x + radius_; x++) {
+			for (int y = center_y - radius_;
+			     y <= center_y + radius_; y++) {
+				if ((std::pow(center_y - y, 2) +
+				     std::pow(center_x - x, 2)) <=
+				    std::pow(radius_, 2)) {
+					SDL_RenderDrawPoint(renderer, x, y);
+				}
+			}
+		}
+
+		// Show the change on the screen
+		SDL_RenderPresent(renderer);
+	}
+
+	~Game()
+	{
+                SDL_DestroyRenderer(renderer);
+                SDL_FreeSurface(window_surface);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+	}
 };
 
 int main(int argc, char **argv)
 {
 	Game game;
 
+        game.draw_circle(200, 100, 50);
 	SDL_UpdateWindowSurface(game.window);
 
 	SDL_Event event;
-        SDL_PollEvent(&event);
-	while (event.type != SDL_QUIT) {
+	while (true) {
 		SDL_PollEvent(&event);
+		if (event.type == SDL_QUIT) {
+			break;
+		}
 	}
 
-        return 0;
+	return 0;
 }
