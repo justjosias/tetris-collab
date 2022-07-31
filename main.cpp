@@ -9,13 +9,14 @@ using namespace std;
 class Game
 {
       public:
-        int height;
-        int width;
+	int height;
+	int width;
 
-	Game() {
-                this->height = 20;
-                this->width = 10;
-        }
+	Game()
+	{
+		this->height = 20;
+		this->width = 10;
+	}
 };
 
 int main()
@@ -28,8 +29,8 @@ int main()
 	}
 
 	SDL_Window *window =
-	    SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_CENTERED,
-			     SDL_WINDOWPOS_CENTERED, 680, 480, 0)pp;
+	    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED,
+			     SDL_WINDOWPOS_CENTERED, 680, 480, 0);
 
 	if (!window) {
 		cerr << "Failed to create window\n";
@@ -45,9 +46,8 @@ int main()
 
 	SDL_UpdateWindowSurface(window);
 
-        SDL_Event event;
-        while (event.type != SDL_QUIT) {
-                SDL_PollEvent(&event);
-        }
-
+	SDL_Event event;
+	while (event.type != SDL_QUIT) {
+		SDL_PollEvent(&event);
+	}
 }
