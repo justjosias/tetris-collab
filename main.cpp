@@ -12,39 +12,46 @@ class Game
 	int height;
 	int width;
 
+	SDL_Window *window;
+	SDL_Surface *window_surface;
+
 	Game()
 	{
 		this->height = 20;
 		this->width = 10;
+
+		if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+			throw "Failed to initialize SDL2";
+		}
+
+		this->window =
+		    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED,
+				     SDL_WINDOWPOS_CENTERED, 400, 800, 0);
+		if (window == nullptr) {
+			throw "Failed to create window";
+		}
+		this->window_surface = SDL_GetWindowSurface(window);
+
+		if (window_surface == nullptr) {
+			throw "Failed to get window surface";
+		}
 	}
+
+	void decorate_window() {
+                
+        }
+
+        ~Game() {
+                SDL_DestroyWindow(window);
+                SDL_Quit();
+        }
 };
 
 int main()
 {
 	Game game;
 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		cerr << "Failed to initialize the SDL2 library\n";
-		return 1;
-	}
-
-	SDL_Window *window =
-	    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED,
-			     SDL_WINDOWPOS_CENTERED, 680, 480, 0);
-
-	if (!window) {
-		cerr << "Failed to create window\n";
-		return 1;
-	}
-
-	SDL_Surface *window_surface = SDL_GetWindowSurface(window);
-
-	if (!window_surface) {
-		cerr << "Failed to get the surface from the window\n";
-		return 1;
-	}
-
-	SDL_UpdateWindowSurface(window);
+	SDL_UpdateWindowSurface(game.window);
 
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
