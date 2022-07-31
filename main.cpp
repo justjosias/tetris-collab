@@ -54,6 +54,7 @@ int main()
 	SDL_UpdateWindowSurface(game.window);
 
 	SDL_Event event;
+        SDL_PollEvent(&event);
 	while (event.type != SDL_QUIT) {
 		SDL_PollEvent(&event);
 	}
