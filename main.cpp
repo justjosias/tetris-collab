@@ -21,11 +21,10 @@ class Game
 int main()
 {
 	Game game;
-	game.list_blocks();
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		cerr << "Failed to initialize the SDL2 library\n";
-		return -1;
+		return 1;
 	}
 
 	SDL_Window *window =
@@ -34,14 +33,14 @@ int main()
 
 	if (!window) {
 		cerr << "Failed to create window\n";
-		return -1;
+		return 1;
 	}
 
 	SDL_Surface *window_surface = SDL_GetWindowSurface(window);
 
 	if (!window_surface) {
 		cerr << "Failed to get the surface from the window\n";
-		return -1;
+		return 1;
 	}
 
 	SDL_UpdateWindowSurface(window);
