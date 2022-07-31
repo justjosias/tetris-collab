@@ -47,7 +47,7 @@ class Game
         }
 };
 
-int main()
+int main(int argc, char **argv)
 {
 	Game game;
 
@@ -58,4 +58,6 @@ int main()
 	while (event.type != SDL_QUIT) {
 		SDL_PollEvent(&event);
 	}
+
+        return 0;
 }
