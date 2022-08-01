@@ -42,13 +42,13 @@ class Block
 	int max_y()
 	{
 		auto cur = this->current();
-		int min = std::get<1>(cur[0]);
+		int max = std::get<1>(cur[0]);
 		for (auto loc : cur) {
-			if (std::get<1>(loc) > min) {
-				min = std::get<1>(loc);
+			if (std::get<1>(loc) > max) {
+				max = std::get<1>(loc);
 			}
 		}
-		return min;
+		return max;
 	}
 	int min_y()
 	{
@@ -64,13 +64,13 @@ class Block
 	int max_x()
 	{
 		auto cur = this->current();
-		int min = std::get<0>(cur[0]);
+		int max = std::get<0>(cur[0]);
 		for (auto loc : cur) {
-			if (std::get<0>(loc) > min) {
-				min = std::get<0>(loc);
+			if (std::get<0>(loc) > max) {
+				max = std::get<0>(loc);
 			}
 		}
-		return min;
+		return max;
 	}
 	int min_x()
 	{
@@ -103,6 +103,9 @@ class GameState
 
 	int score = 0;
 
+        int height = 20;
+	int width = 10;
+
 	GameState()
 	{
 		Block block;
@@ -115,16 +118,20 @@ class GameState
 		this->width = w;
 	}
 
-	int height = 20;
-	int width = 10;
+	void right() {
+                if (this->blocks[current_block].max_x() < this->width - 1) {
+                        this->blocks[current_block].offset_x += 1;
+                }
+        }
 
-	void right() { this->blocks[current_block].offset_x += 1; }
-	void left() { this->blocks[current_block].offset_x -= 1; }
-	void up() { this->blocks[current_block].offset_y -= 1; }
+	void left() {
+                if (this->blocks[current_block].min_x() > 0) {
+                        this->blocks[current_block].offset_x -= 1;
+                }
+        }
+
 	void down()
 	{
-		std::cout << "Max Y: " << this->blocks[current_block].max_y()
-			  << std::endl;
 		if (this->blocks[current_block].max_y() < this->height - 1) {
 			this->blocks[current_block].offset_y += 1;
 		}
