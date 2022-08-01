@@ -11,6 +11,9 @@
 using std::tuple;
 using std::vector;
 
+// We'll use a virtual grid in the top left corner to handle rotation. Calculate
+// the center based on this and rotate from that origin.
+
 class Block
 {
       public:
@@ -20,11 +23,14 @@ class Block
 
 	Block()
 	{
-		this->locations.push_back(std::make_tuple(4, 0));
-		this->locations.push_back(std::make_tuple(4, 1));
-		this->locations.push_back(std::make_tuple(4, 2));
-		this->locations.push_back(std::make_tuple(5, 0));
-		this->offset_x = 0;
+		// Locations for this block:
+		// ==
+		// =
+		// =
+		this->locations = {std::make_tuple(1, 0), std::make_tuple(1, 1),
+				   std::make_tuple(1, 2),
+				   std::make_tuple(2, 0)};
+		this->offset_x = 3;
 		this->offset_y = 0;
 	}
 
@@ -84,6 +90,28 @@ class Block
 		return min;
 	}
 
+	int grid_size()
+	{
+		int max_x = std::get<0>(this->locations[0]);
+		for (auto loc : this->locations) {
+			if (std::get<0>(loc) > max_x) {
+				max_x = std::get<0>(loc);
+			}
+		}
+                max_x += 1;
+
+                int max_y = std::get<1>(this->locations[0]);
+		for (auto loc : this->locations) {
+			if (std::get<1>(loc) > max_y) {
+				max_y = std::get<1>(loc);
+			}
+		}
+                max_y += 1;
+                
+		auto size = std::max(max_x, max_y);
+		return size;
+	}
+
 	bool collides(int x, int y)
 	{
 		for (auto loc : locations) {
@@ -92,6 +120,23 @@ class Block
 			}
 		}
 		return false;
+	}
+
+	void rotate()
+	{
+		std::cout << "rotating!" << std::endl;
+		if (this->grid_size() % 2 == 0) {
+
+		} else {
+			for (unsigned int i = 0; i < this->locations.size();
+			     ++i) {
+				auto x = std::get<0>(locations[i]);
+				auto y = std::get<1>(locations[i]);
+				std::get<0>(locations[i]) = y;
+				std::get<1>(locations[i]) = 2 - x;
+			}
+		}
+		std::cout << "Rotated!" << std::endl;
 	}
 };
 
@@ -103,7 +148,7 @@ class GameState
 
 	int score = 0;
 
-        int height = 20;
+	int height = 20;
 	int width = 10;
 
 	GameState()
@@ -118,17 +163,19 @@ class GameState
 		this->width = w;
 	}
 
-	void right() {
-                if (this->blocks[current_block].max_x() < this->width - 1) {
-                        this->blocks[current_block].offset_x += 1;
-                }
-        }
+	void right()
+	{
+		if (this->blocks[current_block].max_x() < this->width - 1) {
+			this->blocks[current_block].offset_x += 1;
+		}
+	}
 
-	void left() {
-                if (this->blocks[current_block].min_x() > 0) {
-                        this->blocks[current_block].offset_x -= 1;
-                }
-        }
+	void left()
+	{
+		if (this->blocks[current_block].min_x() > 0) {
+			this->blocks[current_block].offset_x -= 1;
+		}
+	}
 
 	void down()
 	{
@@ -136,6 +183,8 @@ class GameState
 			this->blocks[current_block].offset_y += 1;
 		}
 	}
+
+	void rotate() { this->blocks[current_block].rotate(); }
 };
 
 class GameContext
@@ -249,6 +298,9 @@ int main(int argc, char **argv)
 				break;
 			case SDLK_DOWN:
 				ctx.game.down();
+				break;
+			case SDLK_UP:
+				ctx.game.rotate();
 				break;
 			default:
 				break;
