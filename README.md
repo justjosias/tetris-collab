@@ -2,7 +2,7 @@
 
 Josias and Jacob's super epic Tetris game.
 
-# Building
+## Building
 
 Linux:
 ```
