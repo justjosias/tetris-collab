@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -37,6 +38,11 @@ class Block
 		}
 		return new_loc;
 	}
+
+	void right() { this->offset_x += 1; }
+	void left() { this->offset_x -= 1; }
+	void up() { this->offset_y -= 1; }
+	void down() { this->offset_y += 1; }
 };
 
 class GameState
@@ -154,12 +160,25 @@ int main(int argc, char **argv)
 
 	SDL_Event event;
 
+        auto last_time = std::chrono::high_resolution_clock::now();
+        
 	bool should_continue = true;
 	while (should_continue) {
 		SDL_PollEvent(&event);
-		if (event.type == SDL_QUIT) {
+
+		switch (event.type) {
+		case SDL_QUIT:
 			should_continue = false;
+			break;
+		default:
+			break;
 		}
+
+                auto now = std::chrono::high_resolution_clock::now();
+                auto diff = now - last_time;
+//                if (diff > 1000) {
+//                        ctx->game.blocks
+//                }
 
 		ctx.draw();
 		SDL_UpdateWindowSurface(ctx.window);
