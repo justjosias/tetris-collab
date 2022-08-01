@@ -35,6 +35,8 @@ class Block
 class GameState
 {
       public:
+        std::vector<Block> blocks;
+
 	GameState() {}
 };
 
@@ -50,6 +52,7 @@ class GameContext
 
 	GameState state;
 
+        // Initializes SDL and the game state
 	GameContext()
 	{
 		this->height = 20;
@@ -75,6 +78,8 @@ class GameContext
 		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	}
 
+        // decorate_window adds the decoration around the game itself
+        // Currently doesn't work
 	void decorate_window()
 	{
 		int x = 100;
@@ -97,7 +102,6 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-	ctx.draw_circle(200, 100, 50);
 	SDL_UpdateWindowSurface(ctx.window);
 
 	SDL_Event event;
