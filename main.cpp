@@ -274,7 +274,6 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-	//auto last_time = std::chrono::high_resolution_clock::now();
 	auto last_time = SDL_GetTicks64();
 
 	bool should_continue = true;
