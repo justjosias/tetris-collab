@@ -90,7 +90,7 @@ class Block
 		return min;
 	}
 
-	int grid_size()
+	int width()
 	{
 		int max_x = std::get<0>(this->locations[0]);
 		for (auto loc : this->locations) {
@@ -98,17 +98,23 @@ class Block
 				max_x = std::get<0>(loc);
 			}
 		}
-                max_x += 1;
+		return max_x + 1;
+	}
+	int height()
+	{
 
-                int max_y = std::get<1>(this->locations[0]);
+		int max_y = std::get<1>(this->locations[0]);
 		for (auto loc : this->locations) {
 			if (std::get<1>(loc) > max_y) {
 				max_y = std::get<1>(loc);
 			}
 		}
-                max_y += 1;
-                
-		auto size = std::max(max_x, max_y);
+		return max_y + 1;
+	}
+
+	int grid_size()
+	{
+		auto size = std::max(this->width(), this->height());
 		return size;
 	}
 
@@ -135,7 +141,6 @@ class Block
 				std::get<1>(locations[i]) = 2 - x;
 			}
 		}
-		std::cout << "Rotated!" << std::endl;
 	}
 };
 
@@ -320,8 +325,8 @@ int main(int argc, char **argv)
 		ctx.draw();
 		SDL_UpdateWindowSurface(ctx.window);
 
-                // Keep the game from hogging all the CPU
-                SDL_Delay(10);
+		// Keep the game from hogging all the CPU
+		SDL_Delay(10);
 	}
 
 	return 0;
