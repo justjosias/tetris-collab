@@ -11,9 +11,6 @@
 using std::tuple;
 using std::vector;
 
-// We'll use a virtual grid in the top left corner to handle rotation. Calculate
-// the center based on this and rotate from that origin.
-
 class Block
 {
       public:
@@ -27,9 +24,7 @@ class Block
 		// ==
 		// =
 		// =
-		this->locations = {std::make_tuple(1, 0), std::make_tuple(1, 1),
-				   std::make_tuple(1, 2),
-				   std::make_tuple(2, 0)};
+		this->locations = {{1, 0}, {1, 1}, {1, 2}, {2, 0}};
 		this->offset_x = 3;
 		this->offset_y = 0;
 	}
@@ -38,9 +33,8 @@ class Block
 	{
 		vector<tuple<int, int>> new_loc;
 		for (auto location : locations) {
-			new_loc.push_back(
-			    std::make_tuple(std::get<0>(location) + offset_x,
-					    std::get<1>(location) + offset_y));
+			new_loc.push_back({std::get<0>(location) + offset_x,
+					   std::get<1>(location) + offset_y});
 		}
 		return new_loc;
 	}
@@ -102,7 +96,6 @@ class Block
 	}
 	int height()
 	{
-
 		int max_y = std::get<1>(this->locations[0]);
 		for (auto loc : this->locations) {
 			if (std::get<1>(loc) > max_y) {
