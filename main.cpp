@@ -286,6 +286,7 @@ int main(int argc, char **argv)
 
 	auto last_time = SDL_GetTicks64();
 
+        bool redraw = true;
 	bool should_continue = true;
 	SDL_Event event;
 	while (should_continue) {
@@ -296,6 +297,7 @@ int main(int argc, char **argv)
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
+                        redraw = true;
 			switch (event.key.keysym.sym) {
 			case SDLK_RIGHT:
 				ctx.game.right();
@@ -319,10 +321,14 @@ int main(int argc, char **argv)
 		if (SDL_GetTicks64() - last_time > 1000) {
 			ctx.game.down();
 			last_time = SDL_GetTicks64();
+                        redraw = true;
 		}
 
-		ctx.draw();
-		SDL_UpdateWindowSurface(ctx.window);
+                if (redraw) {
+                        ctx.draw();
+                        SDL_UpdateWindowSurface(ctx.window);
+                        redraw = false;
+                }
 
 		// Keep the game from hogging all the CPU
 		SDL_Delay(10);
