@@ -1,6 +1,6 @@
 NAME=TETRIS
 CPP=g++
-CPPFLAGS=-Wall -Wextra
+CPPFLAGS=-Wall -Wextra -g
 LDFLAGS=`pkg-config --cflags --libs sdl2`
 
 CPPFILES=main.cpp

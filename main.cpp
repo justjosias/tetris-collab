@@ -112,7 +112,6 @@ class GameContext
 	~GameContext()
 	{
 		SDL_DestroyRenderer(renderer);
-		SDL_FreeSurface(window_surface);
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 	}
