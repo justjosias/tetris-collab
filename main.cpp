@@ -41,21 +41,19 @@ class GameState
       public:
 	vector<Block> blocks;
 
-	int height;
-	int width;
+	int score = 0;
 
-	int score;
-
-	GameState()
-	{
-		this->score = 0;
-	}
+	GameState() {}
 
 	void set_size(int h, int w)
 	{
 		this->height = h;
 		this->width = w;
 	}
+
+      private:
+	int height = 20;
+	int width = 10;
 };
 
 class GameContext
@@ -82,14 +80,9 @@ class GameContext
 
 		this->window =
 		    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED,
-				     SDL_WINDOWPOS_CENTERED, 400, 800, 0);
+				     SDL_WINDOWPOS_CENTERED, 1000, 800, 0);
 		if (window == nullptr) {
 			throw "Failed to create window";
-		}
-
-		this->window_surface = SDL_GetWindowSurface(window);
-		if (window_surface == nullptr) {
-			throw "Failed to get window surface";
 		}
 
 		this->renderer =
@@ -99,15 +92,21 @@ class GameContext
 		state.set_size(this->height, this->width);
 	}
 
-	// decorate_window adds the decoration around the game itself
-	// Currently doesn't work
-	void decorate_window()
+	void draw()
 	{
-		int x = 100;
-		int y = 100;
-		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
-		SDL_RenderDrawPoint(this->renderer, x, y);
-		SDL_RenderPresent(renderer);
+                SDL_RenderClear(this->renderer);
+                        
+                SDL_Rect rect;
+                rect.x = 200;
+                rect.y = 200;
+                rect.w = 100;
+                rect.h = 100;
+                
+                //SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+                SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+                SDL_RenderDrawRect(this->renderer, &rect);
+                SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+                SDL_RenderPresent(this->renderer);
 	}
 
 	~GameContext()
@@ -123,14 +122,17 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-	SDL_UpdateWindowSurface(ctx.window);
-
 	SDL_Event event;
-	while (true) {
+
+        bool should_continue = true;
+	while (should_continue) {
 		SDL_PollEvent(&event);
 		if (event.type == SDL_QUIT) {
-			break;
+		        should_continue = false;
 		}
+
+                ctx.draw();
+                SDL_UpdateWindowSurface(ctx.window);
 	}
 
 	return 0;
