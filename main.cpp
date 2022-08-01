@@ -27,10 +27,10 @@ class Block
 	auto current() -> vector<tuple<int, int>>
 	{
 		vector<tuple<int, int>> new_loc;
-		for (auto loc : locations) {
+		for (auto location : locations) {
 			new_loc.push_back(
-			    std::make_tuple(std::get<0>(loc) + offset_x,
-					    std::get<1>(loc) + offset_y));
+			    std::make_tuple(std::get<0>(location) + offset_x,
+					    std::get<1>(location) + offset_y));
 		}
 		return new_loc;
 	}
@@ -41,7 +41,21 @@ class GameState
       public:
 	vector<Block> blocks;
 
-	GameState() {}
+	int height;
+	int width;
+
+	int score;
+
+	GameState()
+	{
+		this->score = 0;
+	}
+
+	void set_size(int h, int w)
+	{
+		this->height = h;
+		this->width = w;
+	}
 };
 
 class GameContext
@@ -80,6 +94,9 @@ class GameContext
 
 		this->renderer =
 		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+		GameState state;
+		state.set_size(this->height, this->width);
 	}
 
 	// decorate_window adds the decoration around the game itself
