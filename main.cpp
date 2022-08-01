@@ -4,11 +4,11 @@
 #include <tuple>
 #include <vector>
 
-//I love this library
+// I love this library
 #include <SDL.h>
 
-using std::vector;
 using std::tuple;
+using std::vector;
 
 class Block
 {
@@ -39,7 +39,7 @@ class Block
 class GameState
 {
       public:
-        vector<Block> blocks;
+	vector<Block> blocks;
 
 	GameState() {}
 };
@@ -56,7 +56,7 @@ class GameContext
 
 	GameState state;
 
-        // Initializes SDL and the game state
+	// Initializes SDL and the game state
 	GameContext()
 	{
 		this->height = 20;
@@ -82,8 +82,8 @@ class GameContext
 		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	}
 
-        // decorate_window adds the decoration around the game itself
-        // Currently doesn't work
+	// decorate_window adds the decoration around the game itself
+	// Currently doesn't work
 	void decorate_window()
 	{
 		int x = 100;
