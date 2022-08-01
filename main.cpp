@@ -6,10 +6,13 @@
 
 #include <SDL.h>
 
+using std::vector;
+using std::tuple;
+
 class Block
 {
       public:
-	std::vector<std::tuple<int, int>> locations;
+	vector<tuple<int, int>> locations;
 	int offset_x;
 	int offset_y;
 
@@ -20,9 +23,9 @@ class Block
 		this->offset_y = 0;
 	}
 
-	auto current() -> std::vector<std::tuple<int, int>>
+	auto current() -> vector<tuple<int, int>>
 	{
-		std::vector<std::tuple<int, int>> new_loc;
+		vector<tuple<int, int>> new_loc;
 		for (auto loc : locations) {
 			new_loc.push_back(
 			    std::make_tuple(std::get<0>(loc) + offset_x,
@@ -35,7 +38,7 @@ class Block
 class GameState
 {
       public:
-        std::vector<Block> blocks;
+        vector<Block> blocks;
 
 	GameState() {}
 };
