@@ -100,12 +100,26 @@ class GameContext
 
 		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
 
+		// Left line
 		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
+		// Top line
 		SDL_RenderDrawLine(renderer, 0, 0, this->height, 0);
+		// Right line
 		SDL_RenderDrawLine(renderer, this->width - 1, 0,
 				   this->width - 1, this->height);
+		// Bottom line
 		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
 				   this->height - 1);
+
+		for (int i = 0; i < this->height; i++) {
+			SDL_RenderDrawLine(renderer, 0, i * 40, this->height,
+					   i * 40);
+		}
+
+		for (int i = 0; i < this->width; i++) {
+			SDL_RenderDrawLine(renderer, i * 40, 0, i * 40,
+					   this->height);
+		}
 
 		SDL_RenderFillRect(this->renderer, &rect);
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
