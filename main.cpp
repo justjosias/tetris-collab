@@ -32,7 +32,7 @@ class Block
 	auto current() -> vector<tuple<int, int>>
 	{
 		vector<tuple<int, int>> new_loc;
-		for (auto location : locations) {
+		for (const auto &location : locations) {
 			new_loc.push_back({std::get<0>(location) + offset_x,
 					   std::get<1>(location) + offset_y});
 		}
@@ -43,7 +43,7 @@ class Block
 	{
 		auto cur = this->current();
 		int max = std::get<1>(cur[0]);
-		for (auto loc : cur) {
+		for (const auto &loc : cur) {
 			if (std::get<1>(loc) > max) {
 				max = std::get<1>(loc);
 			}
@@ -54,7 +54,7 @@ class Block
 	{
 		auto cur = this->current();
 		int min = std::get<1>(cur[0]);
-		for (auto loc : cur) {
+		for (const auto &loc : cur) {
 			if (std::get<1>(loc) < min) {
 				min = std::get<1>(loc);
 			}
@@ -65,7 +65,7 @@ class Block
 	{
 		auto cur = this->current();
 		int max = std::get<0>(cur[0]);
-		for (auto loc : cur) {
+		for (const auto &loc : cur) {
 			if (std::get<0>(loc) > max) {
 				max = std::get<0>(loc);
 			}
@@ -76,7 +76,7 @@ class Block
 	{
 		auto cur = this->current();
 		int min = std::get<0>(cur[0]);
-		for (auto loc : cur) {
+		for (const auto &loc : cur) {
 			if (std::get<0>(loc) < min) {
 				min = std::get<0>(loc);
 			}
@@ -87,7 +87,7 @@ class Block
 	int width()
 	{
 		int max_x = std::get<0>(this->locations[0]);
-		for (auto loc : this->locations) {
+		for (const auto &loc : this->locations) {
 			if (std::get<0>(loc) > max_x) {
 				max_x = std::get<0>(loc);
 			}
@@ -97,7 +97,7 @@ class Block
 	int height()
 	{
 		int max_y = std::get<1>(this->locations[0]);
-		for (auto loc : this->locations) {
+		for (const auto &loc : this->locations) {
 			if (std::get<1>(loc) > max_y) {
 				max_y = std::get<1>(loc);
 			}
@@ -113,7 +113,7 @@ class Block
 
 	bool collides(int x, int y)
 	{
-		for (auto loc : locations) {
+		for (const auto &loc : locations) {
 			if (std::get<0>(loc) == x && std::get<1>(loc) == y) {
 				return true;
 			}
@@ -221,8 +221,8 @@ class GameContext
 	{
 		SDL_RenderClear(this->renderer);
 
-		for (auto block : this->game.blocks) {
-			for (auto loc : block.current()) {
+		for (auto &block : this->game.blocks) {
+			for (const auto &loc : block.current()) {
 				SDL_Rect rect;
 				rect.x = std::get<0>(loc) * 40;
 				rect.y = std::get<1>(loc) * 40;
