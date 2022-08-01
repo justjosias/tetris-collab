@@ -6,28 +6,27 @@
 
 #include <SDL.h>
 
-using namespace std;
-
 class Block
 {
       public:
-	vector<tuple<int, int>> locations;
+	std::vector<std::tuple<int, int>> locations;
 	int offset_x;
 	int offset_y;
 
 	Block()
 	{
-		this->locations.push_back(make_tuple(0, 0));
+		this->locations.push_back(std::make_tuple(0, 0));
 		this->offset_x = 0;
 		this->offset_y = 0;
 	}
 
-	auto current() -> vector<tuple<int, int>>
+	auto current() -> std::vector<std::tuple<int, int>>
 	{
-		vector<tuple<int, int>> new_loc;
+		std::vector<std::tuple<int, int>> new_loc;
 		for (auto loc : locations) {
-			new_loc.push_back(make_tuple(get<0>(loc) + offset_x,
-						     get<1>(loc) + offset_y));
+			new_loc.push_back(
+			    std::make_tuple(std::get<0>(loc) + offset_x,
+					    std::get<1>(loc) + offset_y));
 		}
 		return new_loc;
 	}
@@ -49,7 +48,7 @@ class GameContext
 	SDL_Surface *window_surface;
 	SDL_Renderer *renderer;
 
-        GameState state;
+	GameState state;
 
 	GameContext()
 	{
@@ -82,27 +81,6 @@ class GameContext
 		int y = 100;
 		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
 		SDL_RenderDrawPoint(this->renderer, x, y);
-		SDL_RenderPresent(renderer);
-	}
-
-	void draw_circle(int center_x, int center_y, int radius_)
-	{
-		// Setting the color to be RED with 100% opaque (0% trasparent).
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-		// Drawing circle
-		for (int x = center_x - radius_; x <= center_x + radius_; x++) {
-			for (int y = center_y - radius_;
-			     y <= center_y + radius_; y++) {
-				if ((std::pow(center_y - y, 2) +
-				     std::pow(center_x - x, 2)) <=
-				    std::pow(radius_, 2)) {
-					SDL_RenderDrawPoint(renderer, x, y);
-				}
-			}
-		}
-
-		// Show the change on the screen
 		SDL_RenderPresent(renderer);
 	}
 
