@@ -49,7 +49,7 @@ class GameState
 {
       public:
 	vector<Block> blocks;
-        int current_block = 0;
+	int current_block = 0;
 
 	int score = 0;
 
@@ -159,10 +159,10 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-        auto last_time = std::chrono::high_resolution_clock::now();
-        
+	auto last_time = std::chrono::high_resolution_clock::now();
+
 	bool should_continue = true;
-        SDL_Event event;
+	SDL_Event event;
 	while (should_continue) {
 		SDL_PollEvent(&event);
 
@@ -170,17 +170,32 @@ int main(int argc, char **argv)
 		case SDL_QUIT:
 			should_continue = false;
 			break;
+                case SDL_KEYDOWN:
+                        switch (event.key.keysym.sym) {
+                        case SDLK_RIGHT:
+                                ctx.game.blocks[ctx.game.current_block].right();
+                                break;
+                        case SDLK_LEFT:
+                                ctx.game.blocks[ctx.game.current_block].left();
+                                break;
+                        case SDLK_DOWN:
+                                ctx.game.blocks[ctx.game.current_block].down();
+                                break;
+                        default:
+                                break;
+                        }
 		default:
 			break;
 		}
 
-                auto now = std::chrono::high_resolution_clock::now();
-                auto diff = now - last_time;
-                auto t1 = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-                if (t1.count() > 1000) {
-                        ctx.game.blocks[0].down();
-                        last_time = now;
-                }
+		auto now = std::chrono::high_resolution_clock::now();
+		auto diff = now - last_time;
+		auto t1 =
+		    std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+		if (t1.count() > 1000) {
+			ctx.game.blocks[0].down();
+			last_time = now;
+		}
 
 		ctx.draw();
 		SDL_UpdateWindowSurface(ctx.window);
