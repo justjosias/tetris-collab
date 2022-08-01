@@ -274,7 +274,8 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-	auto last_time = std::chrono::high_resolution_clock::now();
+	//auto last_time = std::chrono::high_resolution_clock::now();
+	auto last_time = SDL_GetTicks64();
 
 	bool should_continue = true;
 	SDL_Event event;
@@ -306,13 +307,9 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		auto now = std::chrono::high_resolution_clock::now();
-		auto diff = now - last_time;
-		auto t1 =
-		    std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-		if (t1.count() > 1000) {
+		if (SDL_GetTicks64() - last_time > 1000) {
 			ctx.game.down();
-			last_time = now;
+			last_time = SDL_GetTicks64();
 		}
 
 		ctx.draw();
