@@ -124,7 +124,6 @@ class Block
 
 	void rotate()
 	{
-		std::cout << "rotating!" << std::endl;
 		if (this->grid_size() % 2 == 0) {
 
 		} else {
@@ -320,6 +319,9 @@ int main(int argc, char **argv)
 
 		ctx.draw();
 		SDL_UpdateWindowSurface(ctx.window);
+
+                // Keep the game from hogging all the CPU
+                SDL_Delay(10);
 	}
 
 	return 0;
