@@ -51,7 +51,6 @@ class GameState
 		this->width = w;
 	}
 
-      private:
 	int height = 20;
 	int width = 10;
 };
@@ -59,28 +58,25 @@ class GameState
 class GameContext
 {
       public:
-	int height;
-	int width;
-
 	SDL_Window *window;
 	SDL_Surface *window_surface;
 	SDL_Renderer *renderer;
 
-	GameState state;
+	int height = 800;
+	int width = 400;
+
+	GameState game;
 
 	// Initializes SDL and the game state
 	GameContext()
 	{
-		this->height = 20;
-		this->width = 10;
-
 		if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 			throw "Failed to initialize SDL2";
 		}
 
-		this->window =
-		    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED,
-				     SDL_WINDOWPOS_CENTERED, 1000, 800, 0);
+		this->window = SDL_CreateWindow(
+		    "TETRIS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		    this->width, this->height, 0);
 		if (window == nullptr) {
 			throw "Failed to create window";
 		}
@@ -88,25 +84,32 @@ class GameContext
 		this->renderer =
 		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-		GameState state;
-		state.set_size(this->height, this->width);
+		GameState game;
+		game.set_size(40, 20);
 	}
 
 	void draw()
 	{
-                SDL_RenderClear(this->renderer);
-                        
-                SDL_Rect rect;
-                rect.x = 200;
-                rect.y = 200;
-                rect.w = 100;
-                rect.h = 100;
-                
-                //SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
-                SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
-                SDL_RenderDrawRect(this->renderer, &rect);
-                SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-                SDL_RenderPresent(this->renderer);
+		SDL_RenderClear(this->renderer);
+
+		SDL_Rect rect;
+		rect.x = 200;
+		rect.y = 200;
+		rect.w = 20;
+		rect.h = 20;
+
+		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+
+		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
+		SDL_RenderDrawLine(renderer, 0, 0, this->height, 0);
+		SDL_RenderDrawLine(renderer, this->width - 1, 0,
+				   this->width - 1, this->height);
+		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
+				   this->height - 1);
+
+		SDL_RenderFillRect(this->renderer, &rect);
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		SDL_RenderPresent(this->renderer);
 	}
 
 	~GameContext()
@@ -123,15 +126,15 @@ int main(int argc, char **argv)
 
 	SDL_Event event;
 
-        bool should_continue = true;
+	bool should_continue = true;
 	while (should_continue) {
 		SDL_PollEvent(&event);
 		if (event.type == SDL_QUIT) {
-		        should_continue = false;
+			should_continue = false;
 		}
 
-                ctx.draw();
-                SDL_UpdateWindowSurface(ctx.window);
+		ctx.draw();
+		SDL_UpdateWindowSurface(ctx.window);
 	}
 
 	return 0;
