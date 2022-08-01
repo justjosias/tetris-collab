@@ -126,12 +126,11 @@ class Block
 		if (this->grid_size() % 2 == 0) {
 
 		} else {
-			for (unsigned int i = 0; i < this->locations.size();
-			     ++i) {
-				auto x = std::get<0>(locations[i]);
-				auto y = std::get<1>(locations[i]);
-				std::get<0>(locations[i]) = y;
-				std::get<1>(locations[i]) = 2 - x;
+			for (auto &loc : this->locations) {
+				auto x = std::get<0>(loc);
+				auto y = std::get<1>(loc);
+				std::get<0>(loc) = y;
+				std::get<1>(loc) = 2 - x;
 			}
 		}
 	}
@@ -162,26 +161,37 @@ class GameState
 
 	void right()
 	{
-		if (this->blocks[current_block].max_x() < this->width - 1) {
+		if (can_descend() && this->blocks[current_block].max_x() < this->width - 1) {
 			this->blocks[current_block].offset_x += 1;
 		}
 	}
 
 	void left()
 	{
-		if (this->blocks[current_block].min_x() > 0) {
+		if (can_descend() && this->blocks[current_block].min_x() > 0) {
 			this->blocks[current_block].offset_x -= 1;
 		}
 	}
 
+	bool can_descend() {
+		if (this->blocks[current_block].max_y() < this->height - 1) {
+			return true;
+		}
+		return false;
+	}
+
 	void down()
 	{
-		if (this->blocks[current_block].max_y() < this->height - 1) {
+		if (can_descend()) {
 			this->blocks[current_block].offset_y += 1;
 		}
 	}
 
-	void rotate() { this->blocks[current_block].rotate(); }
+	void rotate() {
+		if (can_descend()) {
+			this->blocks[current_block].rotate();
+		}
+	}
 };
 
 class GameContext
