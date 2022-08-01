@@ -20,9 +20,9 @@ class Block
 	Block()
 	{
 		this->locations.push_back(std::make_tuple(1, 1));
-                this->locations.push_back(std::make_tuple(1, 2));
-                this->locations.push_back(std::make_tuple(1, 3));
-                this->locations.push_back(std::make_tuple(2, 1));
+		this->locations.push_back(std::make_tuple(1, 2));
+		this->locations.push_back(std::make_tuple(1, 3));
+		this->locations.push_back(std::make_tuple(2, 1));
 		this->offset_x = 0;
 		this->offset_y = 0;
 	}
@@ -46,10 +46,11 @@ class GameState
 
 	int score = 0;
 
-	GameState() {
-                Block block;
-                this->blocks.push_back(block);
-        }
+	GameState()
+	{
+		Block block;
+		this->blocks.push_back(block);
+	}
 
 	void set_size(int h, int w)
 	{
@@ -98,21 +99,21 @@ class GameContext
 	{
 		SDL_RenderClear(this->renderer);
 
-                for (auto block : this->game.blocks) {
-                        for (auto loc : block.current()) {
-                                SDL_Rect rect;
-                                rect.x = std::get<0>(loc) * 40;
-                                rect.y = std::get<1>(loc) * 40;
-                                rect.w = 40;
-                                rect.h = 40;
+		for (auto block : this->game.blocks) {
+			for (auto loc : block.current()) {
+				SDL_Rect rect;
+				rect.x = std::get<0>(loc) * 40;
+				rect.y = std::get<1>(loc) * 40;
+				rect.w = 40;
+				rect.h = 40;
 
+				SDL_SetRenderDrawColor(this->renderer, 255, 0,
+						       0, 255);
+				SDL_RenderFillRect(renderer, &rect);
+			}
+		}
 
-                                SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
-                                SDL_RenderFillRect(renderer, &rect);
-                        }
-                }
-
-		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+		SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
 
 		// Left line
 		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
