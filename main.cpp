@@ -20,10 +20,10 @@ class Block
 
 	Block()
 	{
-		this->locations.push_back(std::make_tuple(1, 1));
-		this->locations.push_back(std::make_tuple(1, 2));
-		this->locations.push_back(std::make_tuple(1, 3));
-		this->locations.push_back(std::make_tuple(2, 1));
+		this->locations.push_back(std::make_tuple(4, 0));
+		this->locations.push_back(std::make_tuple(4, 1));
+		this->locations.push_back(std::make_tuple(4, 2));
+		this->locations.push_back(std::make_tuple(5, 0));
 		this->offset_x = 0;
 		this->offset_y = 0;
 	}
@@ -39,10 +39,60 @@ class Block
 		return new_loc;
 	}
 
-	void right() { this->offset_x += 1; }
-	void left() { this->offset_x -= 1; }
-	void up() { this->offset_y -= 1; }
-	void down() { this->offset_y += 1; }
+	int max_y()
+	{
+		auto cur = this->current();
+		int min = std::get<1>(cur[0]);
+		for (auto loc : cur) {
+			if (std::get<1>(loc) > min) {
+				min = std::get<1>(loc);
+			}
+		}
+		return min;
+	}
+	int min_y()
+	{
+		auto cur = this->current();
+		int min = std::get<1>(cur[0]);
+		for (auto loc : cur) {
+			if (std::get<1>(loc) < min) {
+				min = std::get<1>(loc);
+			}
+		}
+		return min;
+	}
+	int max_x()
+	{
+		auto cur = this->current();
+		int min = std::get<0>(cur[0]);
+		for (auto loc : cur) {
+			if (std::get<0>(loc) > min) {
+				min = std::get<0>(loc);
+			}
+		}
+		return min;
+	}
+	int min_x()
+	{
+		auto cur = this->current();
+		int min = std::get<0>(cur[0]);
+		for (auto loc : cur) {
+			if (std::get<0>(loc) < min) {
+				min = std::get<0>(loc);
+			}
+		}
+		return min;
+	}
+
+	bool collides(int x, int y)
+	{
+		for (auto loc : locations) {
+			if (std::get<0>(loc) == x && std::get<1>(loc) == y) {
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class GameState
@@ -67,6 +117,18 @@ class GameState
 
 	int height = 20;
 	int width = 10;
+
+	void right() { this->blocks[current_block].offset_x += 1; }
+	void left() { this->blocks[current_block].offset_x -= 1; }
+	void up() { this->blocks[current_block].offset_y -= 1; }
+	void down()
+	{
+		std::cout << "Max Y: " << this->blocks[current_block].max_y()
+			  << std::endl;
+		if (this->blocks[current_block].max_y() < this->height - 1) {
+			this->blocks[current_block].offset_y += 1;
+		}
+	}
 };
 
 class GameContext
@@ -170,20 +232,20 @@ int main(int argc, char **argv)
 		case SDL_QUIT:
 			should_continue = false;
 			break;
-                case SDL_KEYDOWN:
-                        switch (event.key.keysym.sym) {
-                        case SDLK_RIGHT:
-                                ctx.game.blocks[ctx.game.current_block].right();
-                                break;
-                        case SDLK_LEFT:
-                                ctx.game.blocks[ctx.game.current_block].left();
-                                break;
-                        case SDLK_DOWN:
-                                ctx.game.blocks[ctx.game.current_block].down();
-                                break;
-                        default:
-                                break;
-                        }
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+			case SDLK_RIGHT:
+				ctx.game.right();
+				break;
+			case SDLK_LEFT:
+				ctx.game.left();
+				break;
+			case SDLK_DOWN:
+				ctx.game.down();
+				break;
+			default:
+				break;
+			}
 		default:
 			break;
 		}
@@ -193,7 +255,7 @@ int main(int argc, char **argv)
 		auto t1 =
 		    std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 		if (t1.count() > 1000) {
-			ctx.game.blocks[0].down();
+			ctx.game.down();
 			last_time = now;
 		}
 
