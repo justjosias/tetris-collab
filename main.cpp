@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <random>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -11,23 +12,22 @@
 using std::tuple;
 using std::vector;
 
+struct RGB {
+	int r;
+	int g;
+	int b;
+};
+
 class Block
 {
       public:
 	vector<tuple<int, int>> locations;
-	int offset_x;
-	int offset_y;
+	int offset_x = 3;
+	int offset_y = 0;
 
-	Block()
-	{
-		// Locations for this block:
-		// ==
-		// =
-		// =
-		this->locations = {{1, 0}, {1, 1}, {1, 2}, {2, 0}};
-		this->offset_x = 3;
-		this->offset_y = 0;
-	}
+	RGB color;
+
+	Block() {}
 
 	auto current() -> vector<tuple<int, int>>
 	{
@@ -121,16 +121,28 @@ class Block
 		return false;
 	}
 
+	int middle()
+	{
+		auto gs = this->grid_size();
+		if (gs % 2 == 0) {
+			return -1;
+		} else {
+			return gs / 2 + 1;
+		}
+	}
+
 	void rotate()
 	{
-		if (this->grid_size() % 2 == 0) {
-
+		auto mid = this->middle();
+		if (mid == -1) {
+			// TODO: rotate even-sized grids
 		} else {
+			// (x, y) -> (y, -x)
 			for (auto &loc : this->locations) {
 				auto x = std::get<0>(loc);
 				auto y = std::get<1>(loc);
 				std::get<0>(loc) = y;
-				std::get<1>(loc) = 2 - x;
+				std::get<1>(loc) = mid - x;
 			}
 		}
 	}
@@ -139,18 +151,44 @@ class Block
 class GameState
 {
       public:
-	vector<Block> blocks;
-	int current_block = 0;
+	Block block;
+	vector<tuple<int, int, RGB>> filled;
 
 	int score = 0;
 
 	int height = 20;
 	int width = 10;
 
-	GameState()
+	GameState() { this->new_block(); }
+
+	void new_block()
 	{
+		vector<vector<tuple<int, int>>> block_shapes{
+		    // backwards L
+		    {{1, 0}, {1, 1}, {1, 2}, {2, 0}},
+		    // forwards L
+		    {{1, 0}, {1, 1}, {1, 2}, {0, 0}},
+		    // square
+		    {{0, 0}, {0, 1}, {1, 0}, {1, 1}},
+		};
+
+		vector<RGB> block_colors{
+		    RGB{.r = 255, .g = 0, .b = 0},
+		    RGB{.r = 0, .g = 255, .b = 0},
+		    RGB{.r = 0, .g = 0, .b = 255},
+		};
+
+		// Make a random number generator that provides random indices
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> distr(0,
+						      block_shapes.size() - 1);
+
+		auto i = distr(gen);
 		Block block;
-		this->blocks.push_back(block);
+		block.locations = block_shapes[i];
+		block.color = block_colors[i];
+		this->block = block;
 	}
 
 	void set_size(int h, int w)
@@ -161,35 +199,58 @@ class GameState
 
 	void right()
 	{
-		if (can_descend() && this->blocks[current_block].max_x() < this->width - 1) {
-			this->blocks[current_block].offset_x += 1;
+		if (can_descend() && block.max_x() < this->width - 1) {
+			block.offset_x += 1;
 		}
 	}
 
 	void left()
 	{
-		if (can_descend() && this->blocks[current_block].min_x() > 0) {
-			this->blocks[current_block].offset_x -= 1;
+		if (can_descend() && block.min_x() > 0) {
+			block.offset_x -= 1;
 		}
 	}
 
-	bool can_descend() {
-		if (this->blocks[current_block].max_y() < this->height - 1) {
+	bool can_descend()
+	{
+                // Descent code BROKEN!
+		auto block_loc = block.current();
+		for (const auto &sq : filled) {
+			if (block.max_y() > std::get<1>(sq) - 2) {
+                                for (const auto &loc : block_loc) {
+                                        if (std::get<0>(loc) == std::get<0>(sq)) {
+                                                return false;
+                                        }
+                                }
+			}
+		}
+                // end broken section
+		if (block.max_y() < this->height - 1) {
 			return true;
 		}
+
 		return false;
 	}
 
 	void down()
 	{
 		if (can_descend()) {
-			this->blocks[current_block].offset_y += 1;
+			block.offset_y += 1;
+
+		} else {
+			for (const auto &loc : block.current()) {
+				filled.push_back({std::get<0>(loc),
+						  std::get<1>(loc),
+						  block.color});
+			}
+			this->new_block();
 		}
 	}
 
-	void rotate() {
+	void rotate()
+	{
 		if (can_descend()) {
-			this->blocks[current_block].rotate();
+			this->block.rotate();
 		}
 	}
 };
@@ -231,18 +292,29 @@ class GameContext
 	{
 		SDL_RenderClear(this->renderer);
 
-		for (auto &block : this->game.blocks) {
-			for (const auto &loc : block.current()) {
-				SDL_Rect rect;
-				rect.x = std::get<0>(loc) * 40;
-				rect.y = std::get<1>(loc) * 40;
-				rect.w = 40;
-				rect.h = 40;
+		for (const auto &loc : game.block.current()) {
+			SDL_Rect rect;
+			rect.x = std::get<0>(loc) * 40;
+			rect.y = std::get<1>(loc) * 40;
+			rect.w = 40;
+			rect.h = 40;
 
-				SDL_SetRenderDrawColor(this->renderer, 255, 0,
-						       0, 255);
-				SDL_RenderFillRect(renderer, &rect);
-			}
+			SDL_SetRenderDrawColor(
+			    this->renderer, game.block.color.r,
+			    game.block.color.g, game.block.color.b, 255);
+			SDL_RenderFillRect(renderer, &rect);
+		}
+
+		for (const auto &loc : game.filled) {
+			SDL_Rect rect;
+			rect.x = std::get<0>(loc) * 40;
+			rect.y = std::get<1>(loc) * 40;
+			rect.w = 40;
+			rect.h = 40;
+			auto rgb = std::get<2>(loc);
+			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g,
+					       rgb.b, 255);
+			SDL_RenderFillRect(renderer, &rect);
 		}
 
 		SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
@@ -286,7 +358,7 @@ int main(int argc, char **argv)
 
 	auto last_time = SDL_GetTicks64();
 
-        bool redraw = true;
+	bool redraw = true;
 	bool should_continue = true;
 	SDL_Event event;
 	while (should_continue) {
@@ -297,7 +369,7 @@ int main(int argc, char **argv)
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
-                        redraw = true;
+			redraw = true;
 			switch (event.key.keysym.sym) {
 			case SDLK_RIGHT:
 				ctx.game.right();
@@ -321,14 +393,14 @@ int main(int argc, char **argv)
 		if (SDL_GetTicks64() - last_time > 1000) {
 			ctx.game.down();
 			last_time = SDL_GetTicks64();
-                        redraw = true;
+			redraw = true;
 		}
 
-                if (redraw) {
-                        ctx.draw();
-                        SDL_UpdateWindowSurface(ctx.window);
-                        redraw = false;
-                }
+		if (redraw) {
+			ctx.draw();
+			SDL_UpdateWindowSurface(ctx.window);
+			redraw = false;
+		}
 
 		// Keep the game from hogging all the CPU
 		SDL_Delay(10);
