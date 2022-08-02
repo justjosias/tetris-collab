@@ -163,7 +163,7 @@ class GameState
 
 	void new_block()
 	{
-		vector<vector<tuple<int, int>>> block_shapes{
+		vector<vector<tuple<int, int>>> block_shapes = {
 		    // backwards L
 		    {{1, 0}, {1, 1}, {1, 2}, {2, 0}},
 		    // forwards L
@@ -172,7 +172,7 @@ class GameState
 		    {{0, 0}, {0, 1}, {1, 0}, {1, 1}},
 		};
 
-		vector<RGB> block_colors{
+		vector<RGB> block_colors = {
 		    RGB{.r = 255, .g = 0, .b = 0},
 		    RGB{.r = 0, .g = 255, .b = 0},
 		    RGB{.r = 0, .g = 0, .b = 255},
