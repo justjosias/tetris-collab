@@ -173,9 +173,9 @@ class GameState
 		};
 
 		vector<RGB> block_colors = {
-		    RGB{.r = 255, .g = 0, .b = 0},
-		    RGB{.r = 0, .g = 255, .b = 0},
-		    RGB{.r = 0, .g = 0, .b = 255},
+                        RGB{255, 0, 0},
+                        RGB{0, 255, 0},
+                        RGB{0, 0, 255},
 		};
 
 		// Make a random number generator that provides random indices
