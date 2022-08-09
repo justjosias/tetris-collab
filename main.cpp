@@ -252,9 +252,22 @@ class GameState
 		}
 	}
 
+	bool can_rotate()
+	{
+		vector<tuple<int, int>> block_locations = block.coordinates();
+		for (const auto &loc : block.locations) {
+			if (std::get<1>(loc) + block.offset_x >
+				this->width - 1 ||
+			    std::get<1>(loc) + block.offset_x < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	void rotate()
 	{
-		if (can_descend()) {
+		if (can_descend() && can_rotate()) {
 			this->block.rotate();
 		}
 	}
@@ -362,6 +375,7 @@ int main(int argc, char **argv)
 	GameContext ctx;
 
 	auto last_time = SDL_GetTicks64();
+	auto rotation_time = SDL_GetTicks64();
 
 	bool redraw = true;
 	bool should_continue = true;
@@ -386,7 +400,10 @@ int main(int argc, char **argv)
 				ctx.game.down();
 				break;
 			case SDLK_UP:
-				ctx.game.rotate();
+				if (SDL_GetTicks64() - rotation_time > 200) {
+					ctx.game.rotate();
+					rotation_time = SDL_GetTicks64();
+				}
 				break;
 			default:
 				break;
