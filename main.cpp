@@ -29,7 +29,7 @@ class Block
 
 	Block() {}
 
-	auto current() -> vector<tuple<int, int>>
+	auto coordinates() -> vector<tuple<int, int>>
 	{
 		vector<tuple<int, int>> new_loc;
 		for (const auto &location : locations) {
@@ -41,7 +41,7 @@ class Block
 
 	int max_y()
 	{
-		auto cur = this->current();
+		auto cur = this->coordinates();
 		int max = std::get<1>(cur[0]);
 		for (const auto &loc : cur) {
 			if (std::get<1>(loc) > max) {
@@ -52,7 +52,7 @@ class Block
 	}
 	int min_y()
 	{
-		auto cur = this->current();
+		auto cur = this->coordinates();
 		int min = std::get<1>(cur[0]);
 		for (const auto &loc : cur) {
 			if (std::get<1>(loc) < min) {
@@ -63,7 +63,7 @@ class Block
 	}
 	int max_x()
 	{
-		auto cur = this->current();
+		auto cur = this->coordinates();
 		int max = std::get<0>(cur[0]);
 		for (const auto &loc : cur) {
 			if (std::get<0>(loc) > max) {
@@ -74,7 +74,7 @@ class Block
 	}
 	int min_x()
 	{
-		auto cur = this->current();
+		auto cur = this->coordinates();
 		int min = std::get<0>(cur[0]);
 		for (const auto &loc : cur) {
 			if (std::get<0>(loc) < min) {
@@ -105,6 +105,7 @@ class Block
 		return max_y + 1;
 	}
 
+	// THIS IS THE SIZE OF THE GRID OF THE BLOCK NOT THE ENTIRE GRID
 	int grid_size()
 	{
 		auto size = std::max(this->width(), this->height());
@@ -173,9 +174,9 @@ class GameState
 		};
 
 		vector<RGB> block_colors = {
-                        RGB{255, 0, 0},
-                        RGB{0, 255, 0},
-                        RGB{0, 0, 255},
+		    RGB{255, 0, 0},
+		    RGB{0, 255, 0},
+		    RGB{0, 0, 255},
 		};
 
 		// Make a random number generator that provides random indices
@@ -199,37 +200,41 @@ class GameState
 
 	void right()
 	{
-		if (can_descend() && block.max_x() < this->width - 1) {
+		if (can_move(1, 0) && can_descend() &&
+		    block.max_x() < this->width - 1) {
 			block.offset_x += 1;
 		}
 	}
 
 	void left()
 	{
-		if (can_descend() && block.min_x() > 0) {
+		if (can_move(-1, 0) && can_descend() && block.min_x() > 0) {
 			block.offset_x -= 1;
 		}
 	}
 
 	bool can_descend()
 	{
-                // Descent code BROKEN!
-		auto block_loc = block.current();
-		for (const auto &sq : filled) {
-			if (block.max_y() > std::get<1>(sq) - 2) {
-                                for (const auto &loc : block_loc) {
-                                        if (std::get<0>(loc) == std::get<0>(sq)) {
-                                                return false;
-                                        }
-                                }
-			}
-		}
-                // end broken section
-		if (block.max_y() < this->height - 1) {
+		if (can_move(0, 1) && block.max_y() < this->height - 1) {
 			return true;
 		}
-
 		return false;
+	}
+
+	bool can_move(int x, int y)
+	{
+		vector<tuple<int, int>> block_locations = block.coordinates();
+		for (const auto &floc : filled) {
+			for (const auto &bloc : block_locations) {
+				if (std::get<0>(bloc) + x ==
+					std::get<0>(floc) &&
+				    std::get<1>(bloc) + y ==
+					std::get<1>(floc)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	void down()
@@ -238,7 +243,7 @@ class GameState
 			block.offset_y += 1;
 
 		} else {
-			for (const auto &loc : block.current()) {
+			for (const auto &loc : block.coordinates()) {
 				filled.push_back({std::get<0>(loc),
 						  std::get<1>(loc),
 						  block.color});
@@ -292,7 +297,7 @@ class GameContext
 	{
 		SDL_RenderClear(this->renderer);
 
-		for (const auto &loc : game.block.current()) {
+		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
 			rect.x = std::get<0>(loc) * 40;
 			rect.y = std::get<1>(loc) * 40;
