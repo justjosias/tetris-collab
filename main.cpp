@@ -1,4 +1,21 @@
+<<<<<<< HEAD
 #include <algorithm>
+=======
+/* Copyright 2022 Josias Allestad <me@josias.dev> and Jacob <zathaxx@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>. */
+>>>>>>> ff12e43655680ad32f1dda30c91a744cd5169e0e
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -136,16 +153,12 @@ class Block
 	void rotate()
 	{
 		auto mid = this->middle();
-		if (mid == -1) {
-			// TODO: rotate even-sized grids
-		} else {
-			// (x, y) -> (y, -x)
-			for (auto &loc : this->locations) {
-				auto x = std::get<0>(loc);
-				auto y = std::get<1>(loc);
-				std::get<0>(loc) = y;
-				std::get<1>(loc) = mid - x;
-			}
+		// (x, y) -> (y, -x)
+		for (auto &loc : this->locations) {
+			auto x = std::get<0>(loc);
+			auto y = std::get<1>(loc);
+			std::get<0>(loc) = y;
+			std::get<1>(loc) = mid - x;
 		}
 	}
 };
@@ -250,7 +263,7 @@ class GameState
 	{
 		for (int y = 0; y < this->height; ++y) {
 			bool filled = true;
-			for (int x = 0; x < this->width; ++x) {
+			for (int x = 0; x <r this->width; ++x) {
 				if (!is_filled(x, y)) {
 					filled = false;
 					break;
@@ -310,7 +323,7 @@ class GameState
 			} else if (std::get<0>(loc) < 0) {
 				if (this->can_move(1, 0)) {
 					this->right();
-					continue;
+                                        continue;
 				}
 				return false;
 			}
@@ -412,7 +425,6 @@ class GameContext
 		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
 				   this->height - 1);
 
-		/*
 		for (int i = 0; i < this->height; i++) {
 			SDL_RenderDrawLine(renderer, 0, i * 40, this->height,
 					   i * 40);
@@ -421,7 +433,7 @@ class GameContext
 		for (int i = 0; i < this->width; i++) {
 			SDL_RenderDrawLine(renderer, i * 40, 0, i * 40,
 					   this->height);
-					   }*/
+		}
 
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderPresent(this->renderer);
