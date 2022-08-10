@@ -267,15 +267,16 @@ class GameState
 				}
 			}
 			if (filled) {
+                                // Erase filled row
 				this->filled.erase(
 				    std::remove_if(this->filled.begin(),
 						   this->filled.end(),
 						   [y](auto f) {
-							   return std::get<1>(
-								      f) == y;
+							   return std::get<1>(f) == y;
 						   }),
 				    this->filled.end());
 
+                                // Bring down rest of blocks
 				for (auto &loc : this->filled) {
 					if (std::get<1>(loc) <= y) {
 						std::get<1>(loc) += 1;
