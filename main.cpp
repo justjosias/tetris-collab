@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -245,6 +246,35 @@ class GameState
 		return true;
 	}
 
+        void clear_complete() {                
+                for (int y = 0; y < this->height; ++y) {
+                        bool filled = true;
+                        for (int x = 0; x < this->width; ++x) {
+                                if (!is_filled(x, y)) {
+                                        filled = false;
+                                        break;
+                                }
+                        }
+                        if (filled) {
+                                this->filled.erase(
+                                        std::remove_if(
+						this->filled.begin(),
+						this->filled.end(),
+						[y](auto f) {
+							return std::get<1>(f) ==
+                                                                y;
+						}),
+                                        this->filled.end());
+
+                                for (auto &loc : this->filled) {
+                                        if (std::get<1>(loc) <= y) {
+                                                std::get<1>(loc) += 1;
+                                        }
+                                }
+                        }
+                }
+        }
+
 	void down()
 	{
 		if (can_descend()) {
@@ -256,6 +286,8 @@ class GameState
 						  std::get<1>(loc),
 						  block.color});
 			}
+
+                        this->clear_complete();
 			this->new_block();
 		}
 	}
@@ -266,21 +298,22 @@ class GameState
 		new_block.rotate();
 
 		for (const auto &loc : new_block.coordinates()) {
-			if (this->is_filled(std::get<0>(loc), std::get<1>(loc))) {
-                                return false;
-                        } else if (std::get<0>(loc) > this->width - 1) {
-                                if (this->can_move(-1, 0)) {
-                                        this->left();
-                                        return true;
-                                }
+			if (this->is_filled(std::get<0>(loc),
+					    std::get<1>(loc))) {
+				return false;
+			} else if (std::get<0>(loc) > this->width - 1) {
+				if (this->can_move(-1, 0)) {
+					this->left();
+					continue;
+				}
 				return false;
 			} else if (std::get<0>(loc) < 0) {
-                                if (this->can_move(1, 0)) {
-                                        this->right();
-                                        return true;
-                                }
-                                return false;
-                        }
+				if (this->can_move(1, 0)) {
+					this->right();
+					continue;
+				}
+				return false;
+			}
 		}
 
 		return true;
