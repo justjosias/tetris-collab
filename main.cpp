@@ -246,34 +246,34 @@ class GameState
 		return true;
 	}
 
-        void clear_complete() {                
-                for (int y = 0; y < this->height; ++y) {
-                        bool filled = true;
-                        for (int x = 0; x < this->width; ++x) {
-                                if (!is_filled(x, y)) {
-                                        filled = false;
-                                        break;
-                                }
-                        }
-                        if (filled) {
-                                this->filled.erase(
-                                        std::remove_if(
-						this->filled.begin(),
-						this->filled.end(),
-						[y](auto f) {
-							return std::get<1>(f) ==
-                                                                y;
-						}),
-                                        this->filled.end());
+	void clear_complete()
+	{
+		for (int y = 0; y < this->height; ++y) {
+			bool filled = true;
+			for (int x = 0; x < this->width; ++x) {
+				if (!is_filled(x, y)) {
+					filled = false;
+					break;
+				}
+			}
+			if (filled) {
+				this->filled.erase(
+				    std::remove_if(this->filled.begin(),
+						   this->filled.end(),
+						   [y](auto f) {
+							   return std::get<1>(
+								      f) == y;
+						   }),
+				    this->filled.end());
 
-                                for (auto &loc : this->filled) {
-                                        if (std::get<1>(loc) <= y) {
-                                                std::get<1>(loc) += 1;
-                                        }
-                                }
-                        }
-                }
-        }
+				for (auto &loc : this->filled) {
+					if (std::get<1>(loc) <= y) {
+						std::get<1>(loc) += 1;
+					}
+				}
+			}
+		}
+	}
 
 	void down()
 	{
@@ -287,7 +287,7 @@ class GameState
 						  block.color});
 			}
 
-                        this->clear_complete();
+			this->clear_complete();
 			this->new_block();
 		}
 	}
