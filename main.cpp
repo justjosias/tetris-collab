@@ -164,6 +164,7 @@ class GameState
 {
       public:
 	Block block;
+	Block next_block;
 	vector<tuple<int, int, RGB>> filled;
 
 	int score = 0;
@@ -171,7 +172,11 @@ class GameState
 	int height = 20;
 	int width = 10;
 
-	GameState() { this->new_block(); }
+	GameState()
+	{
+		this->new_block();
+		this->new_block();
+	}
 
 	void new_block()
 	{
@@ -208,7 +213,8 @@ class GameState
 		Block block;
 		block.locations = block_shapes[i];
 		block.color = block_colors[i];
-		this->block = block;
+		this->block = this->next_block;
+		this->next_block = block;
 	}
 
 	void set_size(int h, int w)
@@ -219,15 +225,14 @@ class GameState
 
 	void right()
 	{
-		if (can_move(1, 0) && can_descend() &&
-		    block.max_x() < this->width - 1) {
+		if (can_move(1, 0) && block.max_x() < this->width - 1) {
 			block.offset_x += 1;
 		}
 	}
 
 	void left()
 	{
-		if (can_move(-1, 0) && can_descend() && block.min_x() > 0) {
+		if (can_move(-1, 0) && block.min_x() > 0) {
 			block.offset_x -= 1;
 		}
 	}
@@ -267,16 +272,17 @@ class GameState
 				}
 			}
 			if (filled) {
-                                // Erase filled row
+				// Erase filled row
 				this->filled.erase(
 				    std::remove_if(this->filled.begin(),
 						   this->filled.end(),
 						   [y](auto f) {
-							   return std::get<1>(f) == y;
+							   return std::get<1>(
+								      f) == y;
 						   }),
 				    this->filled.end());
 
-                                // Bring down rest of blocks
+				// Bring down rest of blocks
 				for (auto &loc : this->filled) {
 					if (std::get<1>(loc) <= y) {
 						std::get<1>(loc) += 1;
@@ -321,7 +327,7 @@ class GameState
 			} else if (std::get<0>(loc) < 0) {
 				if (this->can_move(1, 0)) {
 					this->right();
-                                        continue;
+					continue;
 				}
 				return false;
 			}
