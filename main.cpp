@@ -126,7 +126,7 @@ class Block
 	{
 		auto gs = this->grid_size();
 		if (gs % 2 == 0) {
-			return -1;
+			return gs / 2;
 		} else {
 			return gs / 2 + 1;
 		}
@@ -262,23 +262,27 @@ class GameState
 
 	bool can_rotate()
 	{
-		vector<tuple<int, int>> block_locations = block.coordinates();
-		for (const auto &loc : block.locations) {
-			if (std::get<1>(loc) + block.offset_x >
-			    this->width - 1) {
-				if (can_move(-1, 0)) {
-					this->left();
-					return true;
-				}
+		Block new_block = this->block;
+		new_block.rotate();
+
+		for (const auto &loc : new_block.coordinates()) {
+			if (this->is_filled(std::get<0>(loc), std::get<1>(loc))) {
+                                return false;
+                        } else if (std::get<0>(loc) > this->width - 1) {
+                                if (this->can_move(-1, 0)) {
+                                        this->left();
+                                        return true;
+                                }
 				return false;
-			} else if (std::get<1>(loc) + block.offset_x < 0) {
-				if (can_move(1, 0)) {
-					this->right();
-					return true;
-				}
-				return false;
-			}
+			} else if (std::get<0>(loc) < 0) {
+                                if (this->can_move(1, 0)) {
+                                        this->right();
+                                        return true;
+                                }
+                                return false;
+                        }
 		}
+
 		return true;
 	}
 
@@ -375,6 +379,7 @@ class GameContext
 		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
 				   this->height - 1);
 
+		/*
 		for (int i = 0; i < this->height; i++) {
 			SDL_RenderDrawLine(renderer, 0, i * 40, this->height,
 					   i * 40);
@@ -383,7 +388,7 @@ class GameContext
 		for (int i = 0; i < this->width; i++) {
 			SDL_RenderDrawLine(renderer, i * 40, 0, i * 40,
 					   this->height);
-		}
+					   }*/
 
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderPresent(this->renderer);
@@ -402,10 +407,10 @@ int main(int argc, char **argv)
 	GameContext ctx;
 
 	auto last_time = SDL_GetTicks64();
-	auto rotation_time = SDL_GetTicks64();
 
 	bool redraw = true;
 	bool should_continue = true;
+	bool rotation_pressed = false;
 	SDL_Event event;
 	while (should_continue) {
 		SDL_PollEvent(&event);
@@ -427,14 +432,20 @@ int main(int argc, char **argv)
 				ctx.game.down();
 				break;
 			case SDLK_UP:
-				if (SDL_GetTicks64() - rotation_time > 200) {
+				if (!rotation_pressed) {
 					ctx.game.rotate();
-					rotation_time = SDL_GetTicks64();
+					rotation_pressed = true;
 				}
 				break;
 			default:
 				break;
 			}
+			break;
+		case SDL_KEYUP:
+			if (event.key.keysym.sym == SDLK_UP) {
+				rotation_pressed = false;
+			}
+			break;
 		default:
 			break;
 		}
