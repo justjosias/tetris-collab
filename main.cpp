@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-#include <algorithm>
-=======
 /* Copyright 2022 Josias Allestad <me@josias.dev> and Jacob <zathaxx@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -15,7 +12,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. */
->>>>>>> ff12e43655680ad32f1dda30c91a744cd5169e0e
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -263,7 +260,7 @@ class GameState
 	{
 		for (int y = 0; y < this->height; ++y) {
 			bool filled = true;
-			for (int x = 0; x <r this->width; ++x) {
+			for (int x = 0; x < this->width; ++x) {
 				if (!is_filled(x, y)) {
 					filled = false;
 					break;
