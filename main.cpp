@@ -165,18 +165,26 @@ class GameState
 	void new_block()
 	{
 		vector<vector<tuple<int, int>>> block_shapes = {
-		    // backwards L
+		    // J Shape
 		    {{1, 0}, {1, 1}, {1, 2}, {2, 0}},
-		    // forwards L
+		    // L Shape
 		    {{1, 0}, {1, 1}, {1, 2}, {0, 0}},
-		    // square
+		    // O Shope
 		    {{0, 0}, {0, 1}, {1, 0}, {1, 1}},
+		    // I Shape
+		    {{0, 0}, {0, 1}, {0, 2}, {0, 3}},
+		    // T shape
+		    {{1, 0}, {0, 1}, {1, 1}, {1, 2}},
+		    // Z shape
+		    {{0, 0}, {1, 0}, {1, 1}, {2, 1}},
+		    // S shape
+		    {{1, 0}, {2, 0}, {0, 1}, {1, 1}},
 		};
 
 		vector<RGB> block_colors = {
-		    RGB{255, 0, 0},
-		    RGB{0, 255, 0},
-		    RGB{0, 0, 255},
+		    RGB{255, 0, 0},   RGB{0, 255, 0},	RGB{0, 0, 255},
+		    RGB{255, 255, 0}, RGB{0, 255, 255}, RGB{90, 0, 255},
+		    RGB{255, 0, 90},
 		};
 
 		// Make a random number generator that provides random indices
@@ -257,12 +265,31 @@ class GameState
 		vector<tuple<int, int>> block_locations = block.coordinates();
 		for (const auto &loc : block.locations) {
 			if (std::get<1>(loc) + block.offset_x >
-				this->width - 1 ||
-			    std::get<1>(loc) + block.offset_x < 0) {
+			    this->width - 1) {
+				if (can_move(-1, 0)) {
+					this->left();
+					return true;
+				}
+				return false;
+			} else if (std::get<1>(loc) + block.offset_x < 0) {
+				if (can_move(1, 0)) {
+					this->right();
+					return true;
+				}
 				return false;
 			}
 		}
 		return true;
+	}
+
+	bool is_filled(int x, int y)
+	{
+		for (const auto &loc : filled) {
+			if (std::get<0>(loc) == x && std::get<1>(loc) == y) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void rotate()
