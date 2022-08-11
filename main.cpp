@@ -295,7 +295,6 @@ class GameState
 				}
 			}
 		}
-
 		auto to_add = 0;
 		if (rows <= 3) {
 			to_add = ((rows * 100) * rows);
@@ -309,6 +308,7 @@ class GameState
 		}
 
 		this->score += to_add;
+
 	}
 
 	void down()
