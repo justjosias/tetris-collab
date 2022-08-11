@@ -162,8 +162,7 @@ class Block
 	}
 };
 
-struct Minigrid
-{
+struct Minigrid {
 	Block block;
 	int offset_x = BLOCK_SIZE;
 	int offset_y = BLOCK_SIZE * 2;
@@ -207,7 +206,7 @@ class GameState
 		    // O Shope
 		    {{0, 0}, {0, 1}, {1, 0}, {1, 1}},
 		    // I Shape
-		    {{0, 0}, {0, 1}, {0, 2}, {0, 3}},
+		    {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
 		    // T shape
 		    {{1, 0}, {0, 1}, {1, 1}, {1, 2}},
 		    // Z shape
@@ -516,31 +515,31 @@ class GameContext
 		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder,
 				   this->height);
 
-
-                // Draw Minigrid
-                SDL_Rect mg_back;
+		// Draw Minigrid
+		SDL_Rect mg_back;
 		mg_back.x = this->game.minigrid.offset_x;
-	        mg_back.y = this->game.minigrid.offset_y;
-	        mg_back.w = this->game.minigrid.width * BLOCK_SIZE;
-	        mg_back.h = this->game.minigrid.height * BLOCK_SIZE;
+		mg_back.y = this->game.minigrid.offset_y;
+		mg_back.w = this->game.minigrid.width * BLOCK_SIZE;
+		mg_back.h = this->game.minigrid.height * BLOCK_SIZE;
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
-                
-                for (const auto &loc : this->game.minigrid.block.locations) {
+
+		for (const auto &loc : this->game.minigrid.block.locations) {
 			SDL_Rect rect;
 			rect.x = (std::get<0>(loc) + 1) * BLOCK_SIZE +
 				 this->game.minigrid.offset_x + 1;
-			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_y;
+			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE +
+				 this->game.minigrid.offset_y;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
 			SDL_SetRenderDrawColor(
 			    this->renderer, this->game.minigrid.block.color.r,
-			    this->game.minigrid.block.color.g, this->game.minigrid.block.color.b, 255);
+			    this->game.minigrid.block.color.g,
+			    this->game.minigrid.block.color.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
-                // End minigrid drawing
-                
+		// End minigrid drawing
 
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderPresent(this->renderer);
