@@ -162,6 +162,16 @@ class Block
 	}
 };
 
+struct Minigrid
+{
+	Block block;
+	int offset_x = BLOCK_SIZE;
+	int offset_y = BLOCK_SIZE * 2;
+
+	int width = 5;
+	int height = 5;
+};
+
 class GameState
 {
       public:
@@ -178,6 +188,8 @@ class GameState
 	int width = 10;
 
 	bool gameover = false;
+
+	Minigrid minigrid;
 
 	GameState()
 	{
@@ -232,6 +244,7 @@ class GameState
 		block.color = block_colors[i];
 		this->block = this->next_block;
 		this->next_block = block;
+		minigrid.block = this->next_block;
 	}
 
 	void set_size(int h, int w)
@@ -502,6 +515,32 @@ class GameContext
 		// Right Border
 		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder,
 				   this->height);
+
+
+                // Draw Minigrid
+                SDL_Rect mg_back;
+		mg_back.x = this->game.minigrid.offset_x;
+	        mg_back.y = this->game.minigrid.offset_y;
+	        mg_back.w = this->game.minigrid.width * BLOCK_SIZE;
+	        mg_back.h = this->game.minigrid.height * BLOCK_SIZE;
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &mg_back);
+                
+                for (const auto &loc : this->game.minigrid.block.locations) {
+			SDL_Rect rect;
+			rect.x = (std::get<0>(loc) + 1) * BLOCK_SIZE +
+				 this->game.minigrid.offset_x + 1;
+			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_y;
+			rect.w = BLOCK_SIZE;
+			rect.h = BLOCK_SIZE;
+
+			SDL_SetRenderDrawColor(
+			    this->renderer, this->game.minigrid.block.color.r,
+			    this->game.minigrid.block.color.g, this->game.minigrid.block.color.b, 255);
+			SDL_RenderFillRect(renderer, &rect);
+		}
+                // End minigrid drawing
+                
 
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderPresent(this->renderer);
