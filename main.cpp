@@ -220,6 +220,13 @@ class GameState
 		auto i = distr(gen);
 		Block block;
 		block.locations = block_shapes[i];
+		for (auto loc : block.locations) {
+			if (is_filled(std::get<0>(loc) + block.offset_x,
+				      std::get<1>(loc)) +
+			    block.offset_y) {
+				SDL_Quit();
+			}
+		}
 		block.color = block_colors[i];
 		this->block = this->next_block;
 		this->next_block = block;
@@ -395,7 +402,7 @@ class GameContext
 	int height = 800;
 	int width = 1000;
 
-        tuple<int, int> game_offset;
+	tuple<int, int> game_offset;
 
 	GameState game;
 
@@ -419,16 +426,31 @@ class GameContext
 		GameState game;
 		game.set_size(40, 20);
 
-                this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
+		this->game_offset = {
+		    (width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
 	}
 
 	void draw()
 	{
+		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
+
+		int leftBorder = std::get<0>(this->game_offset);
+		int rightBorder = std::get<0>(this->game_offset) +
+				  this->game.width * BLOCK_SIZE;
+
+		SDL_Rect board;
+		board.x = leftBorder;
+		board.y = std::get<1>(game_offset);
+		board.w = this->game.width * BLOCK_SIZE;
+		board.h = this->game.height * BLOCK_SIZE;
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &board);
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
+			rect.x = std::get<0>(loc) * BLOCK_SIZE +
+				 std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * BLOCK_SIZE;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
@@ -441,7 +463,8 @@ class GameContext
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
+			rect.x = std::get<0>(loc) * BLOCK_SIZE +
+				 std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * BLOCK_SIZE;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
@@ -456,15 +479,21 @@ class GameContext
 		// Left line
 		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
 		// Top line
-		SDL_RenderDrawLine(renderer, 0, 0, this->height, 0);
+		SDL_RenderDrawLine(renderer, 0, 0, this->width, 0);
 		// Right line
 		SDL_RenderDrawLine(renderer, this->width - 1, 0,
 				   this->width - 1, this->height);
 		// Bottom line
 		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
 				   this->height - 1);
+		// Left Border
+		SDL_RenderDrawLine(renderer, leftBorder, 0, leftBorder,
+				   this->height);
+		// Right Border
+		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder,
+				   this->height);
 
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderPresent(this->renderer);
 	}
 
