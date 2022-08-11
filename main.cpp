@@ -456,7 +456,7 @@ class GameContext
 		// Left line
 		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
 		// Top line
-		SDL_RenderDrawLine(renderer, 0, 0, this->height, 0);
+		SDL_RenderDrawLine(renderer, 0, 0, this->width, 0);
 		// Right line
 		SDL_RenderDrawLine(renderer, this->width - 1, 0,
 				   this->width - 1, this->height);
