@@ -171,7 +171,6 @@ class GameState
 
 	int height = 20;
 	int width = 10;
-	int rows = 20;
 
 	GameState()
 	{
@@ -210,9 +209,8 @@ class GameState
 		std::uniform_int_distribution<> distr(0,
 						      block_shapes.size() - 1);
 
-		std::cout << "The score is currently" << this->score
+		std::cout << "The score is currently: " << this->score
 			  << std::endl;
-		this->rows = 20;
 
 		auto i = distr(gen);
 		Block block;
@@ -268,6 +266,7 @@ class GameState
 
 	void clear_complete()
 	{
+		int rows = this->height;
 		for (int y = 0; y < this->height; ++y) {
 			bool filled = true;
 			for (int x = 0; x < this->width; ++x) {
@@ -296,11 +295,20 @@ class GameState
 				}
 			}
 		}
+
+		auto to_add = 0;
 		if (rows <= 3) {
-			score = score + ((rows * 100) * rows);
+			to_add = ((rows * 100) * rows);
 		} else {
-			score = score + 2000;
+			to_add = 2000;
 		}
+
+		// Check for a perfect clear
+		if (this->filled.size() == 0) {
+			to_add *= 10;
+		}
+
+		this->score += to_add;
 	}
 
 	void down()
