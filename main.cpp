@@ -27,6 +27,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 using std::tuple;
 using std::vector;
 
+const int BLOCK_SIZE = 40;
+
 struct RGB {
 	int r;
 	int g;
@@ -391,7 +393,9 @@ class GameContext
 	SDL_Renderer *renderer;
 
 	int height = 800;
-	int width = 400;
+	int width = 1000;
+
+        tuple<int, int> game_offset;
 
 	GameState game;
 
@@ -414,6 +418,8 @@ class GameContext
 
 		GameState game;
 		game.set_size(40, 20);
+
+                this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
 	}
 
 	void draw()
@@ -422,10 +428,10 @@ class GameContext
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * 40;
-			rect.y = std::get<1>(loc) * 40;
-			rect.w = 40;
-			rect.h = 40;
+			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
+			rect.y = std::get<1>(loc) * BLOCK_SIZE;
+			rect.w = BLOCK_SIZE;
+			rect.h = BLOCK_SIZE;
 
 			SDL_SetRenderDrawColor(
 			    this->renderer, game.block.color.r,
@@ -435,10 +441,10 @@ class GameContext
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * 40;
-			rect.y = std::get<1>(loc) * 40;
-			rect.w = 40;
-			rect.h = 40;
+			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
+			rect.y = std::get<1>(loc) * BLOCK_SIZE;
+			rect.w = BLOCK_SIZE;
+			rect.h = BLOCK_SIZE;
 			auto rgb = std::get<2>(loc);
 			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g,
 					       rgb.b, 255);
