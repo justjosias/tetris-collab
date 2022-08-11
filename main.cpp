@@ -177,7 +177,7 @@ class GameState
 	int height = 20;
 	int width = 10;
 
-        bool gameover = false;
+	bool gameover = false;
 
 	GameState()
 	{
@@ -226,7 +226,7 @@ class GameState
 			if (is_filled(std::get<0>(loc) + block.offset_x,
 				      std::get<1>(loc)) +
 			    block.offset_y) {
-			        this->gameover = true;
+				this->gameover = true;
 			}
 		}
 		block.color = block_colors[i];
@@ -449,6 +449,14 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &board);
 
+		SDL_Rect score;
+		score.x = rightBorder + BLOCK_SIZE - 10;
+		score.y = 40;
+		score.w = 240;
+		score.h = 240;
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &score);
+
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
 			rect.x = std::get<0>(loc) * BLOCK_SIZE +
@@ -567,9 +575,9 @@ int main(int argc, char **argv)
 			redraw = false;
 		}
 
-                if (ctx.game.gameover) {
-                        break;
-                }
+		if (ctx.game.gameover) {
+			break;
+		}
 
 		// Keep the game from hogging all the CPU
 		SDL_Delay(10);
