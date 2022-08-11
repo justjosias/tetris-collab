@@ -50,8 +50,8 @@ class Block
 	{
 		vector<tuple<int, int>> new_loc;
 		for (const auto &location : locations) {
-			new_loc.push_back({std::get<0>(location) + offset_x,
-					   std::get<1>(location) + offset_y});
+			new_loc.push_back(
+			    {std::get<0>(location) + offset_x, std::get<1>(location) + offset_y});
 		}
 		return new_loc;
 	}
@@ -216,26 +216,22 @@ class GameState
 		};
 
 		vector<RGB> block_colors = {
-		    RGB{255, 0, 0},   RGB{0, 255, 0},	RGB{0, 0, 255},
-		    RGB{255, 255, 0}, RGB{0, 255, 255}, RGB{90, 0, 255},
-		    RGB{255, 0, 90},
+		    RGB{255, 0, 0},   RGB{0, 255, 0},  RGB{0, 0, 255},	RGB{255, 255, 0},
+		    RGB{0, 255, 255}, RGB{90, 0, 255}, RGB{255, 0, 90},
 		};
 
 		// Make a random number generator that provides random indices
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> distr(0,
-						      block_shapes.size() - 1);
+		std::uniform_int_distribution<> distr(0, block_shapes.size() - 1);
 
-		std::cout << "The score is currently: " << this->score
-			  << std::endl;
+		std::cout << "The score is currently: " << this->score << std::endl;
 
 		auto i = distr(gen);
 		Block block;
 		block.locations = block_shapes[i];
 		for (auto loc : block.locations) {
-			if (is_filled(std::get<0>(loc) + block.offset_x,
-				      std::get<1>(loc)) +
+			if (is_filled(std::get<0>(loc) + block.offset_x, std::get<1>(loc)) +
 			    block.offset_y) {
 				this->gameover = true;
 			}
@@ -279,10 +275,8 @@ class GameState
 		vector<tuple<int, int>> block_locations = block.coordinates();
 		for (const auto &floc : filled) {
 			for (const auto &bloc : block_locations) {
-				if (std::get<0>(bloc) + x ==
-					std::get<0>(floc) &&
-				    std::get<1>(bloc) + y ==
-					std::get<1>(floc)) {
+				if (std::get<0>(bloc) + x == std::get<0>(floc) &&
+				    std::get<1>(bloc) + y == std::get<1>(floc)) {
 					return false;
 				}
 			}
@@ -305,12 +299,8 @@ class GameState
 			if (filled) {
 				// Erase filled row
 				this->filled.erase(
-				    std::remove_if(this->filled.begin(),
-						   this->filled.end(),
-						   [y](auto f) {
-							   return std::get<1>(
-								      f) == y;
-						   }),
+				    std::remove_if(this->filled.begin(), this->filled.end(),
+						   [y](auto f) { return std::get<1>(f) == y; }),
 				    this->filled.end());
 
 				// Bring down rest of blocks
@@ -351,9 +341,7 @@ class GameState
 			score += 1 * this->level;
 		} else {
 			for (const auto &loc : block.coordinates()) {
-				filled.push_back({std::get<0>(loc),
-						  std::get<1>(loc),
-						  block.color});
+				filled.push_back({std::get<0>(loc), std::get<1>(loc), block.color});
 			}
 
 			this->clear_complete();
@@ -367,8 +355,7 @@ class GameState
 		new_block.rotate();
 
 		for (const auto &loc : new_block.coordinates()) {
-			if (this->is_filled(std::get<0>(loc),
-					    std::get<1>(loc))) {
+			if (this->is_filled(std::get<0>(loc), std::get<1>(loc))) {
 				return false;
 			} else if (std::get<0>(loc) > this->width - 1) {
 				if (this->can_move(-1, 0)) {
@@ -427,21 +414,19 @@ class GameContext
 			throw "Failed to initialize SDL2";
 		}
 
-		this->window = SDL_CreateWindow(
-		    "TETRIS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		    this->width, this->height, 0);
+		this->window =
+		    SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+				     this->width, this->height, 0);
 		if (window == nullptr) {
 			throw "Failed to create window";
 		}
 
-		this->renderer =
-		    SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+		this->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 		GameState game;
 		game.set_size(40, 20);
 
-		this->game_offset = {
-		    (width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
+		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
 	}
 
 	void draw()
@@ -450,8 +435,7 @@ class GameContext
 		SDL_RenderClear(this->renderer);
 
 		int leftBorder = std::get<0>(this->game_offset);
-		int rightBorder = std::get<0>(this->game_offset) +
-				  this->game.width * BLOCK_SIZE;
+		int rightBorder = std::get<0>(this->game_offset) + this->game.width * BLOCK_SIZE;
 
 		SDL_Rect board;
 		board.x = leftBorder;
@@ -471,28 +455,24 @@ class GameContext
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE +
-				 std::get<0>(this->game_offset);
+			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * BLOCK_SIZE;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
-			SDL_SetRenderDrawColor(
-			    this->renderer, game.block.color.r,
-			    game.block.color.g, game.block.color.b, 255);
+			SDL_SetRenderDrawColor(this->renderer, game.block.color.r,
+					       game.block.color.g, game.block.color.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE +
-				 std::get<0>(this->game_offset);
+			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * BLOCK_SIZE;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 			auto rgb = std::get<2>(loc);
-			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g,
-					       rgb.b, 255);
+			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
 
@@ -503,17 +483,13 @@ class GameContext
 		// Top line
 		SDL_RenderDrawLine(renderer, 0, 0, this->width, 0);
 		// Right line
-		SDL_RenderDrawLine(renderer, this->width - 1, 0,
-				   this->width - 1, this->height);
+		SDL_RenderDrawLine(renderer, this->width - 1, 0, this->width - 1, this->height);
 		// Bottom line
-		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
-				   this->height - 1);
+		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width, this->height - 1);
 		// Left Border
-		SDL_RenderDrawLine(renderer, leftBorder, 0, leftBorder,
-				   this->height);
+		SDL_RenderDrawLine(renderer, leftBorder, 0, leftBorder, this->height);
 		// Right Border
-		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder,
-				   this->height);
+		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder, this->height);
 
 		// Draw Minigrid
 		SDL_Rect mg_back;
@@ -526,17 +502,15 @@ class GameContext
 
 		for (const auto &loc : this->game.minigrid.block.locations) {
 			SDL_Rect rect;
-			rect.x = (std::get<0>(loc) + 1) * BLOCK_SIZE +
-				 this->game.minigrid.offset_x + 1;
-			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE +
-				 this->game.minigrid.offset_y;
+			rect.x =
+			    (std::get<0>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_x + 1;
+			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_y;
 			rect.w = BLOCK_SIZE;
 			rect.h = BLOCK_SIZE;
 
-			SDL_SetRenderDrawColor(
-			    this->renderer, this->game.minigrid.block.color.r,
-			    this->game.minigrid.block.color.g,
-			    this->game.minigrid.block.color.b, 255);
+			SDL_SetRenderDrawColor(this->renderer, this->game.minigrid.block.color.r,
+					       this->game.minigrid.block.color.g,
+					       this->game.minigrid.block.color.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
 		// End minigrid drawing
