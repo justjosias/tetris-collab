@@ -168,6 +168,8 @@ class GameState
 	vector<tuple<int, int, RGB>> filled;
 
 	int score = 0;
+        int level = 1;
+        int level_left = 5;
 
 	int height = 20;
 	int width = 10;
@@ -301,6 +303,7 @@ class GameState
 		} else {
 			to_add = 2000;
 		}
+                to_add *= this->level;
 
 		// Check for a perfect clear
 		if (this->filled.size() == 0) {
@@ -308,13 +311,19 @@ class GameState
 		}
 
 		this->score += to_add;
+
+                this->level_left -= rows;
+                if (this->level_left < 1) {
+                        this->level_left = 5;
+                        this->level += 1;
+                }
 	}
 
 	void down()
 	{
 		if (can_descend()) {
 			block.offset_y += 1;
-
+                        score += 1 * this->level;
 		} else {
 			for (const auto &loc : block.coordinates()) {
 				filled.push_back({std::get<0>(loc),
@@ -487,7 +496,6 @@ int main(int argc, char **argv)
 				break;
 			case SDLK_DOWN:
 				ctx.game.down();
-				ctx.game.score++;
 				break;
 			case SDLK_UP:
 				if (!rotation_pressed) {
