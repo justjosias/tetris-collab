@@ -171,6 +171,7 @@ class GameState
 
 	int height = 20;
 	int width = 10;
+	int rows = 20;
 
 	GameState()
 	{
@@ -208,6 +209,10 @@ class GameState
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<> distr(0,
 						      block_shapes.size() - 1);
+
+		std::cout << "The score is currently" << this->score
+			  << std::endl;
+		this->rows = 20;
 
 		auto i = distr(gen);
 		Block block;
@@ -267,6 +272,7 @@ class GameState
 			bool filled = true;
 			for (int x = 0; x < this->width; ++x) {
 				if (!is_filled(x, y)) {
+					rows--;
 					filled = false;
 					break;
 				}
@@ -289,6 +295,11 @@ class GameState
 					}
 				}
 			}
+		}
+		if (rows <= 3) {
+			score = score + ((rows * 100) * rows);
+		} else {
+			score = score + 2000;
 		}
 	}
 
@@ -429,16 +440,6 @@ class GameContext
 		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width,
 				   this->height - 1);
 
-		for (int i = 0; i < this->height; i++) {
-			SDL_RenderDrawLine(renderer, 0, i * 40, this->height,
-					   i * 40);
-		}
-
-		for (int i = 0; i < this->width; i++) {
-			SDL_RenderDrawLine(renderer, i * 40, 0, i * 40,
-					   this->height);
-		}
-
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderPresent(this->renderer);
 	}
@@ -479,6 +480,7 @@ int main(int argc, char **argv)
 				break;
 			case SDLK_DOWN:
 				ctx.game.down();
+				ctx.game.score++;
 				break;
 			case SDLK_UP:
 				if (!rotation_pressed) {
