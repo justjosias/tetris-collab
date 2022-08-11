@@ -308,7 +308,6 @@ class GameState
 		}
 
 		this->score += to_add;
-
 	}
 
 	void down()
