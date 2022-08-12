@@ -253,19 +253,11 @@ class GameState
 			this->block = this->block_pool[i];
 			this->block_pool.erase(this->block_pool.begin() + i);
 		}
-<<<<<<< HEAD
 		if (this->block_pool.size() < 1) {
 			this->replenish_pool();
 		}
 		auto i = this->block_pool.size() - 1;
 		this->minigrid.block = this->block_pool[i];
-=======
-                if (this->block_pool.size() < 1) {
-			this->replenish_pool();
-		}
-                auto i = this->block_pool.size() - 1;
-                this->minigrid.block = this->block_pool[i];
->>>>>>> 9bf0e9e69cd4c2ac07c0a07857f76c8095247e76
 	}
 
 	void set_size(int h, int w)
@@ -452,15 +444,12 @@ class GameContext
 		GameState game;
 		game.set_size(40, 20);
 
-<<<<<<< HEAD
 		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
 
 		TTF_Init();
-=======
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
->>>>>>> 9bf0e9e69cd4c2ac07c0a07857f76c8095247e76
 	}
 
 	void draw()
@@ -479,7 +468,6 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &board);
 
-<<<<<<< HEAD
 		SDL_Rect scoretext;
 		scoretext.x = rightBorder + BLOCK_SIZE + 10;
 		scoretext.y = BLOCK_SIZE;
@@ -523,7 +511,7 @@ class GameContext
 		    TTF_RenderText_Solid(Sans, std::to_string(game.score).c_str(), White);
 		SDL_Texture *Message2 = SDL_CreateTextureFromSurface(renderer, displayScore);
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
-=======
+		
 		SDL_Rect score;
 		score.x = rightBorder + BLOCK_SIZE - 10;
 		score.y = 40;
@@ -531,7 +519,6 @@ class GameContext
 		score.h = 240;
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &score);
->>>>>>> 9bf0e9e69cd4c2ac07c0a07857f76c8095247e76
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
@@ -644,10 +631,7 @@ int main(int argc, char **argv)
 				ctx.game.left();
 				break;
 			case SDLK_DOWN:
-<<<<<<< HEAD
 				ctx.game.score += 1 * ctx.game.level;
-=======
->>>>>>> 9bf0e9e69cd4c2ac07c0a07857f76c8095247e76
 				ctx.game.down();
 				break;
 			case SDLK_UP:
