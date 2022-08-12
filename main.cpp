@@ -248,10 +248,6 @@ class GameState
 
 	void next_block()
 	{
-		// this->block = this->next_block;
-		// this->next_block = block;
-		// minigrid.block = this->next_block;
-
 		if (this->block_pool.size() > 0) {
 			auto i = this->block_pool.size() - 1;
 			this->block = this->block_pool[i];
