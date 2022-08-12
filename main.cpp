@@ -252,9 +252,12 @@ class GameState
 			auto i = this->block_pool.size() - 1;
 			this->block = this->block_pool[i];
 			this->block_pool.erase(this->block_pool.begin() + i);
-		} else {
+		}
+                if (this->block_pool.size() < 1) {
 			this->replenish_pool();
 		}
+                auto i = this->block_pool.size() - 1;
+                this->minigrid.block = this->block_pool[i];
 	}
 
 	void set_size(int h, int w)
