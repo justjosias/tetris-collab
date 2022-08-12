@@ -175,7 +175,7 @@ class GameState
 {
       public:
 	Block block;
-	Block next_block;
+	vector<Block> block_pool;
 	vector<tuple<int, int, RGB>> filled;
 
 	int score = 0;
@@ -192,11 +192,11 @@ class GameState
 
 	GameState()
 	{
-		this->new_block();
-		this->new_block();
+		this->replenish_pool();
+		this->next_block();
 	}
 
-	void new_block()
+	void replenish_pool()
 	{
 		vector<vector<tuple<int, int>>> block_shapes = {
 		    // J Shape
@@ -215,31 +215,50 @@ class GameState
 		    {{1, 0}, {2, 0}, {0, 1}, {1, 1}},
 		};
 
-		vector<RGB> block_colors = {
-		    RGB{255, 0, 0},   RGB{0, 255, 0},  RGB{0, 0, 255},	RGB{255, 255, 0},
-		    RGB{0, 255, 255}, RGB{90, 0, 255}, RGB{255, 0, 90},
-		};
-
 		// Make a random number generator that provides random indices
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<> distr(0, block_shapes.size() - 1);
 
-		std::cout << "The score is currently: " << this->score << std::endl;
+		vector<RGB> block_colors = {
+		    RGB{255, 0, 0},   RGB{0, 255, 0},  RGB{0, 0, 255},	RGB{255, 255, 0},
+		    RGB{0, 255, 255}, RGB{90, 0, 255}, RGB{255, 0, 90},
+		};
 
-		auto i = distr(gen);
-		Block block;
-		block.locations = block_shapes[i];
-		for (auto loc : block.locations) {
-			if (is_filled(std::get<0>(loc) + block.offset_x, std::get<1>(loc)) +
-			    block.offset_y) {
-				this->gameover = true;
+		vector<int> taken;
+		for (size_t i = 0; i < block_shapes.size(); ++i) {
+			auto num = distr(gen);
+			while (std::find(taken.begin(), taken.end(), num) != taken.end()) {
+				num = distr(gen);
 			}
+			Block b;
+			b.locations = block_shapes[num];
+			for (auto loc : b.locations) {
+				if (is_filled(std::get<0>(loc) + b.offset_x, std::get<1>(loc)) +
+				    b.offset_y) {
+					this->gameover = true;
+				}
+			}
+			b.color = block_colors[num];
+
+			this->block_pool.push_back(b);
+			taken.push_back(num);
 		}
-		block.color = block_colors[i];
-		this->block = this->next_block;
-		this->next_block = block;
-		minigrid.block = this->next_block;
+	}
+
+	void next_block()
+	{
+		// this->block = this->next_block;
+		// this->next_block = block;
+		// minigrid.block = this->next_block;
+
+		if (this->block_pool.size() > 0) {
+			auto i = this->block_pool.size() - 1;
+			this->block = this->block_pool[i];
+			this->block_pool.erase(this->block_pool.begin() + i);
+		} else {
+			this->replenish_pool();
+		}
 	}
 
 	void set_size(int h, int w)
@@ -345,16 +364,16 @@ class GameState
 			}
 
 			this->clear_complete();
-			this->new_block();
+			this->next_block();
 		}
 	}
 
 	bool can_rotate()
 	{
-		Block new_block = this->block;
-		new_block.rotate();
+		Block next_block = this->block;
+		next_block.rotate();
 
-		for (const auto &loc : new_block.coordinates()) {
+		for (const auto &loc : next_block.coordinates()) {
 			if (this->is_filled(std::get<0>(loc), std::get<1>(loc))) {
 				return false;
 			} else if (std::get<0>(loc) > this->width - 1) {
@@ -425,6 +444,8 @@ class GameContext
 
 		GameState game;
 		game.set_size(40, 20);
+
+		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
 	}
