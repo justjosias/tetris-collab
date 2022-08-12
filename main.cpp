@@ -536,18 +536,19 @@ int main(int argc, char **argv)
 	bool redraw = true;
 	bool should_continue = true;
 	bool rotation_pressed = false;
-        bool paused = false;
-        
+	bool paused = false;
+
 	SDL_Event event;
 	while (should_continue) {
 		SDL_PollEvent(&event);
 
-                if (paused) {
-                        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-                        } else {
-                                continue;
-                        }
-                }
+		if (paused) {
+			if (event.type == SDL_WINDOWEVENT &&
+			    event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+			} else {
+				continue;
+			}
+		}
 
 		switch (event.type) {
 		case SDL_QUIT:
@@ -580,15 +581,15 @@ int main(int argc, char **argv)
 				rotation_pressed = false;
 			}
 			break;
-                case SDL_WINDOWEVENT:
-                        switch (event.window.event) {
-                        case SDL_WINDOWEVENT_FOCUS_LOST:
-                                paused = true;
-                                break;
-                        case SDL_WINDOWEVENT_FOCUS_GAINED:
-                                paused = false;
-                                break;
-                        }
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				paused = true;
+				break;
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				paused = false;
+				break;
+			}
 		default:
 			break;
 		}
