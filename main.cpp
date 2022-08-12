@@ -12,6 +12,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. */
+#include <SDL_ttf.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -493,6 +494,7 @@ class GameContext
 			livescore.h = (BLOCK_SIZE * 6) / 1.75;
 		} else if (this->game.score >= 10 && this->game.score > 100) {
 		}
+
 		livescore.x = rightBorder + BLOCK_SIZE + 30;
 		livescore.y = BLOCK_SIZE + 80;
 		livescore.w = BLOCK_SIZE * 4;
@@ -511,14 +513,6 @@ class GameContext
 		    TTF_RenderText_Solid(Sans, std::to_string(game.score).c_str(), White);
 		SDL_Texture *Message2 = SDL_CreateTextureFromSurface(renderer, displayScore);
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
-		
-		SDL_Rect score;
-		score.x = rightBorder + BLOCK_SIZE - 10;
-		score.y = 40;
-		score.w = 240;
-		score.h = 240;
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-		SDL_RenderFillRect(renderer, &score);
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
