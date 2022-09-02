@@ -18,14 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 #include <iostream>
 #include <random>
 #include <string>
-#include <tuple>
 #include <vector>
 
 // I love this library
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-using std::tuple;
 using std::vector;
 
 struct RGB {
@@ -34,10 +32,15 @@ struct RGB {
 	int b;
 };
 
+struct Location {
+        int x;
+        int y;
+};
+
 class Block
 {
       public:
-	vector<tuple<int, int>> locations;
+	vector<Location> locations;
 	int offset_x = 3;
 	int offset_y = 0;
 
@@ -45,12 +48,12 @@ class Block
 
 	Block() {}
 
-	auto coordinates() -> vector<tuple<int, int>>
+	vector<Location> coordinates()
 	{
-		vector<tuple<int, int>> new_loc;
+                vector<Location> new_loc;
 		for (const auto &location : locations) {
 			new_loc.push_back(
-			    {std::get<0>(location) + offset_x, std::get<1>(location) + offset_y});
+			    {location.x + offset_x, location.y + offset_y});
 		}
 		return new_loc;
 	}
@@ -58,10 +61,10 @@ class Block
 	int max_y()
 	{
 		auto cur = this->coordinates();
-		int max = std::get<1>(cur[0]);
+		int max = cur[0].y;
 		for (const auto &loc : cur) {
-			if (std::get<1>(loc) > max) {
-				max = std::get<1>(loc);
+			if (loc.y > max) {
+				max = loc.y;
 			}
 		}
 		return max;
@@ -69,10 +72,10 @@ class Block
 	int min_y()
 	{
 		auto cur = this->coordinates();
-		int min = std::get<1>(cur[0]);
+		int min = cur[0].y;
 		for (const auto &loc : cur) {
-			if (std::get<1>(loc) < min) {
-				min = std::get<1>(loc);
+			if (loc.y < min) {
+				min = loc.y;
 			}
 		}
 		return min;
@@ -80,10 +83,10 @@ class Block
 	int max_x()
 	{
 		auto cur = this->coordinates();
-		int max = std::get<0>(cur[0]);
+		int max = cur[0].x;
 		for (const auto &loc : cur) {
-			if (std::get<0>(loc) > max) {
-				max = std::get<0>(loc);
+			if (loc.x > max) {
+				max = loc.x;
 			}
 		}
 		return max;
@@ -91,10 +94,10 @@ class Block
 	int min_x()
 	{
 		auto cur = this->coordinates();
-		int min = std::get<0>(cur[0]);
+		int min = cur[0].x;
 		for (const auto &loc : cur) {
-			if (std::get<0>(loc) < min) {
-				min = std::get<0>(loc);
+			if (loc.x < min) {
+				min = loc.x;
 			}
 		}
 		return min;
@@ -102,20 +105,20 @@ class Block
 
 	int width()
 	{
-		int max_x = std::get<0>(this->locations[0]);
+		int max_x = this->locations[0].x;
 		for (const auto &loc : this->locations) {
-			if (std::get<0>(loc) > max_x) {
-				max_x = std::get<0>(loc);
+			if (loc.x > max_x) {
+				max_x = loc.x;
 			}
 		}
 		return max_x + 1;
 	}
 	int height()
 	{
-		int max_y = std::get<1>(this->locations[0]);
+		int max_y = this->locations[0].y;
 		for (const auto &loc : this->locations) {
-			if (std::get<1>(loc) > max_y) {
-				max_y = std::get<1>(loc);
+			if (loc.y > max_y) {
+				max_y = loc.y;
 			}
 		}
 		return max_y + 1;
@@ -131,7 +134,7 @@ class Block
 	bool collides(int x, int y)
 	{
 		for (const auto &loc : locations) {
-			if (std::get<0>(loc) == x && std::get<1>(loc) == y) {
+			if (loc.x == x && loc.y == y) {
 				return true;
 			}
 		}
@@ -153,10 +156,10 @@ class Block
 		auto mid = this->middle();
 		// (x, y) -> (y, -x)
 		for (auto &loc : this->locations) {
-			auto x = std::get<0>(loc);
-			auto y = std::get<1>(loc);
-			std::get<0>(loc) = y;
-			std::get<1>(loc) = mid - x;
+			auto x = loc.x;
+			auto y = loc.y;
+		        loc.x = y;
+		        loc.y = mid - x;
 		}
 	}
 };
@@ -168,12 +171,18 @@ struct Minigrid {
 	int height = 3;
 };
 
+struct FilledBlock {
+        int x;
+        int y;
+        RGB color;
+};
+
 class GameState
 {
       public:
 	Block block;
 	vector<Block> block_pool;
-	vector<tuple<int, int, RGB>> filled;
+	vector<FilledBlock> filled;
 
 	int score = 0;
 	int level = 1;
@@ -195,7 +204,7 @@ class GameState
 
 	void replenish_pool()
 	{
-		vector<vector<tuple<int, int>>> block_shapes = {
+		vector<vector<Location>> block_shapes = {
 		    // J Shape
 		    {{1, 0}, {1, 1}, {1, 2}, {2, 0}},
 		    // L Shape
@@ -231,7 +240,7 @@ class GameState
 			Block b;
 			b.locations = block_shapes[num];
 			for (auto loc : b.locations) {
-				if (is_filled(std::get<0>(loc) + b.offset_x, std::get<1>(loc)) +
+				if (is_filled(loc.x + b.offset_x, loc.y) +
 				    b.offset_y) {
 					this->gameover = true;
 				}
@@ -287,11 +296,11 @@ class GameState
 
 	bool can_move(int x, int y)
 	{
-		vector<tuple<int, int>> block_locations = block.coordinates();
+		vector<Location> block_locations = block.coordinates();
 		for (const auto &floc : filled) {
 			for (const auto &bloc : block_locations) {
-				if (std::get<0>(bloc) + x == std::get<0>(floc) &&
-				    std::get<1>(bloc) + y == std::get<1>(floc)) {
+				if (bloc.x + x == floc.x &&
+				    bloc.y + y == floc.y) {
 					return false;
 				}
 			}
@@ -315,13 +324,13 @@ class GameState
 				// Erase filled row
 				this->filled.erase(
 				    std::remove_if(this->filled.begin(), this->filled.end(),
-						   [y](auto f) { return std::get<1>(f) == y; }),
+						   [y](auto f) { return f.y == y; }),
 				    this->filled.end());
 
 				// Bring down rest of blocks
 				for (auto &loc : this->filled) {
-					if (std::get<1>(loc) <= y) {
-						std::get<1>(loc) += 1;
+					if (loc.y <= y) {
+						loc.y += 1;
 					}
 				}
 			}
@@ -356,7 +365,7 @@ class GameState
 			score += 1 * this->level;
 		} else {
 			for (const auto &loc : block.coordinates()) {
-				filled.push_back({std::get<0>(loc), std::get<1>(loc), block.color});
+				filled.push_back({loc.x, loc.y, block.color});
 			}
 
 			this->clear_complete();
@@ -370,15 +379,15 @@ class GameState
 		next_block.rotate();
 
 		for (const auto &loc : next_block.coordinates()) {
-			if (this->is_filled(std::get<0>(loc), std::get<1>(loc))) {
+			if (this->is_filled(loc.x, loc.y)) {
 				return false;
-			} else if (std::get<0>(loc) > this->width - 1) {
+			} else if (loc.x > this->width - 1) {
 				if (this->can_move(-1, 0)) {
 					this->left();
 					continue;
 				}
 				return false;
-			} else if (std::get<0>(loc) < 0) {
+			} else if (loc.x < 0) {
 				if (this->can_move(1, 0)) {
 					this->right();
 					continue;
@@ -393,7 +402,7 @@ class GameState
 	bool is_filled(int x, int y)
 	{
 		for (const auto &loc : filled) {
-			if (std::get<0>(loc) == x && std::get<1>(loc) == y) {
+			if (loc.x == x && loc.y == y) {
 				return true;
 			}
 		}
@@ -419,7 +428,7 @@ class GameContext
 	int width = 1000;
 	TTF_Font *font;
 
-	tuple<int, int> game_offset;
+	Location game_offset;
 
 	GameState game;
 
@@ -461,13 +470,13 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
-		int leftBorder = std::get<0>(this->game_offset);
+		int leftBorder = this->game_offset.x;
 		int rightBorder =
-		    std::get<0>(this->game_offset) + this->game.width * this->block_size;
+		    this->game_offset.x + this->game.width * this->block_size;
 
 		SDL_Rect board = {
 		    .x = leftBorder,
-		    .y = std::get<1>(game_offset),
+		    .y = game_offset.y,
 		    .w = this->game.width * this->block_size,
 		    .h = this->game.height * this->block_size,
 		};
@@ -516,8 +525,8 @@ class GameContext
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
 			rect.x =
-			    std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
-			rect.y = std::get<1>(loc) * this->block_size;
+			    loc.x * this->block_size + this->game_offset.x;
+			rect.y = loc.y * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
 
@@ -529,11 +538,11 @@ class GameContext
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
 			rect.x =
-			    std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
-			rect.y = std::get<1>(loc) * this->block_size;
+			    loc.x * this->block_size + this->game_offset.x;
+			rect.y = loc.y * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
-			auto rgb = std::get<2>(loc);
+			auto rgb = loc.color;
 			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
@@ -569,8 +578,8 @@ class GameContext
 				tmp_block_size = this->block_size;
 			}
 			SDL_Rect rect;
-			rect.x = (std::get<0>(loc)) * tmp_block_size + this->block_size;
-			rect.y = (std::get<1>(loc)) * tmp_block_size + this->block_size * 2;
+			rect.x = loc.x * tmp_block_size + this->block_size;
+			rect.y = loc.y * tmp_block_size + this->block_size * 2;
 			rect.w = tmp_block_size;
 			rect.h = tmp_block_size;
 
