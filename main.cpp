@@ -597,7 +597,7 @@ int main(int argc, char **argv)
 {
 	GameContext ctx;
 
-	auto last_time = SDL_GetTicks64();
+	auto last_time = SDL_GetTicks();
 
 	bool redraw = true;
 	bool should_continue = true;
@@ -661,9 +661,9 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		if (SDL_GetTicks64() - last_time > ctx.game.tickspeed) {
+		if (SDL_GetTicks() - last_time > ctx.game.tickspeed) {
 			ctx.game.down();
-			last_time = SDL_GetTicks64();
+			last_time = SDL_GetTicks();
 			redraw = true;
 		}
 
