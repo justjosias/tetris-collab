@@ -423,7 +423,7 @@ class GameContext
 
 	GameState game;
 
-        int block_size = 40;
+	int block_size = 40;
 
 	// Initializes SDL and the game state
 	GameContext()
@@ -448,13 +448,12 @@ class GameContext
 
 		TTF_Init();
 		this->font = TTF_OpenFont("Sans.ttf", 14);
-        if (!this->font) {
-            throw "Failed to load Sans.ttf";
-        }
+		if (!this->font) {
+			throw "Failed to load Sans.ttf";
+		}
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
-		
 	}
 
 	void draw()
@@ -463,46 +462,47 @@ class GameContext
 		SDL_RenderClear(this->renderer);
 
 		int leftBorder = std::get<0>(this->game_offset);
-		int rightBorder = std::get<0>(this->game_offset) + this->game.width * this->block_size;
+		int rightBorder =
+		    std::get<0>(this->game_offset) + this->game.width * this->block_size;
 
-		SDL_Rect board;
-		board.x = leftBorder;
-		board.y = std::get<1>(game_offset);
-		board.w = this->game.width * this->block_size;
-		board.h = this->game.height * this->block_size;
+		SDL_Rect board = {
+		    .x = leftBorder,
+		    .y = std::get<1>(game_offset),
+		    .w = this->game.width * this->block_size,
+		    .h = this->game.height * this->block_size,
+		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &board);
 
-		SDL_Rect scoretext;
-		scoretext.x = rightBorder + this->block_size + 10;
-		scoretext.y = this->block_size;
-		scoretext.w = this->block_size * 5;
-		scoretext.h = (this->block_size * 6) / 3;
+		SDL_Rect scoretext = {
+		    .x = rightBorder + this->block_size + 10,
+		    .y = this->block_size,
+		    .w = this->block_size * 5,
+		    .h = (this->block_size * 6) / 3,
+		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &scoretext);
 
-		SDL_Rect scoreboard;
-		scoreboard.x = rightBorder + this->block_size - 10;
-		scoreboard.y = 40;
-		scoreboard.w = 240;
-		scoreboard.h = 240;
+		SDL_Rect scoreboard = {
+		    .x = rightBorder + this->block_size - 10,
+		    .y = 40,
+		    .w = 240,
+		    .h = 240,
+		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &scoreboard);
 
-		SDL_Rect livescore;
-
 		int length = std::to_string(abs(game.score)).length();
 
-		livescore.x = (rightBorder + this->block_size + 110) - ((length * 10) * 2);
-		livescore.y = this->block_size + 80;
-		livescore.w = (this->block_size * 2) * (double(length) / 2);
-		livescore.h = (this->block_size * 6) / 1.75;
-
-
+		SDL_Rect livescore = {
+		    .x = (rightBorder + this->block_size + 110) - ((length * 10) * 2),
+		    .y = this->block_size + 80,
+		    .w = (this->block_size * 2) * (double(length) / 2),
+		    .h = (this->block_size * 6) / 1.75,
+		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &livescore);
 
-		
 		SDL_Color White = {255, 255, 255};
 		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
 		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
@@ -515,7 +515,8 @@ class GameContext
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
+			rect.x =
+			    std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
@@ -527,7 +528,8 @@ class GameContext
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
+			rect.x =
+			    std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
 			rect.y = std::get<1>(loc) * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
@@ -560,14 +562,14 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
-                auto tmp_block_size = this->game.minigrid.width * this->block_size / this->game.minigrid.block.grid_size(); 
+		auto tmp_block_size = this->game.minigrid.width * this->block_size /
+				      this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
-                        if (tmp_block_size > this->block_size) {
-                                tmp_block_size = this->block_size;
-                        }
+			if (tmp_block_size > this->block_size) {
+				tmp_block_size = this->block_size;
+			}
 			SDL_Rect rect;
-			rect.x =
-                                (std::get<0>(loc)) * tmp_block_size + this->block_size;
+			rect.x = (std::get<0>(loc)) * tmp_block_size + this->block_size;
 			rect.y = (std::get<1>(loc)) * tmp_block_size + this->block_size * 2;
 			rect.w = tmp_block_size;
 			rect.h = tmp_block_size;
