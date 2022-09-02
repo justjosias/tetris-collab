@@ -417,6 +417,7 @@ class GameContext
 
 	int height = 800;
 	int width = 1000;
+	TTF_Font *font;
 
 	tuple<int, int> game_offset;
 
@@ -446,9 +447,14 @@ class GameContext
 		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
 
 		TTF_Init();
+		this->font = TTF_OpenFont("Sans.ttf", 14);
+        if (!this->font) {
+            throw "Failed to load Sans.ttf";
+        }
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
+		
 	}
 
 	void draw()
@@ -485,33 +491,25 @@ class GameContext
 
 		SDL_Rect livescore;
 
-		if (this->game.score < 10) {
-			livescore.x = rightBorder + this->block_size + 70;
-			livescore.y = this->block_size + 80;
-			livescore.w = this->block_size * 2;
-			livescore.h = (this->block_size * 6) / 1.75;
-		} else if (this->game.score >= 10 && this->game.score > 100) {
-		}
+		int length = std::to_string(abs(game.score)).length();
 
-		livescore.x = rightBorder + this->block_size + 30;
+		livescore.x = (rightBorder + this->block_size + 110) - ((length * 10) * 2);
 		livescore.y = this->block_size + 80;
-		livescore.w = this->block_size * 4;
+		livescore.w = (this->block_size * 2) * (double(length) / 2);
 		livescore.h = (this->block_size * 6) / 1.75;
 
-		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &livescore);
 
-		TTF_Font *Sans = TTF_OpenFont("Sans.ttf", 14);
-                if (!Sans) {
-                        std::cerr << "Failed to open Sans.ttf" << std::endl;
-                }
+		
 		SDL_Color White = {255, 255, 255};
-		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(Sans, "SCORE", White);
+		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
 		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 		SDL_RenderCopy(renderer, Message, NULL, &scoretext);
 
 		SDL_Surface *displayScore =
-		    TTF_RenderText_Solid(Sans, std::to_string(game.score).c_str(), White);
+		    TTF_RenderText_Solid(this->font, std::to_string(game.score).c_str(), White);
 		SDL_Texture *Message2 = SDL_CreateTextureFromSurface(renderer, displayScore);
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
 
