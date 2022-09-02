@@ -12,7 +12,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-#include <SDL_ttf.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -23,12 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 #include <vector>
 
 // I love this library
-#include <SDL.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 using std::tuple;
 using std::vector;
-
-const int BLOCK_SIZE = 40;
 
 struct RGB {
 	int r;
@@ -165,11 +163,9 @@ class Block
 
 struct Minigrid {
 	Block block;
-	int offset_x = BLOCK_SIZE;
-	int offset_y = BLOCK_SIZE * 2;
 
-	int width = 5;
-	int height = 5;
+	int width = 3;
+	int height = 3;
 };
 
 class GameState
@@ -426,6 +422,8 @@ class GameContext
 
 	GameState game;
 
+        int block_size = 40;
+
 	// Initializes SDL and the game state
 	GameContext()
 	{
@@ -445,12 +443,12 @@ class GameContext
 		GameState game;
 		game.set_size(40, 20);
 
-		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
+		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
 
 		TTF_Init();
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
-		this->game_offset = {(width - (game.width * BLOCK_SIZE / 2)) / 2, 0};
+		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
 	}
 
 	void draw()
@@ -459,26 +457,26 @@ class GameContext
 		SDL_RenderClear(this->renderer);
 
 		int leftBorder = std::get<0>(this->game_offset);
-		int rightBorder = std::get<0>(this->game_offset) + this->game.width * BLOCK_SIZE;
+		int rightBorder = std::get<0>(this->game_offset) + this->game.width * this->block_size;
 
 		SDL_Rect board;
 		board.x = leftBorder;
 		board.y = std::get<1>(game_offset);
-		board.w = this->game.width * BLOCK_SIZE;
-		board.h = this->game.height * BLOCK_SIZE;
+		board.w = this->game.width * this->block_size;
+		board.h = this->game.height * this->block_size;
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &board);
 
 		SDL_Rect scoretext;
-		scoretext.x = rightBorder + BLOCK_SIZE + 10;
-		scoretext.y = BLOCK_SIZE;
-		scoretext.w = BLOCK_SIZE * 5;
-		scoretext.h = (BLOCK_SIZE * 6) / 3;
+		scoretext.x = rightBorder + this->block_size + 10;
+		scoretext.y = this->block_size;
+		scoretext.w = this->block_size * 5;
+		scoretext.h = (this->block_size * 6) / 3;
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &scoretext);
 
 		SDL_Rect scoreboard;
-		scoreboard.x = rightBorder + BLOCK_SIZE - 10;
+		scoreboard.x = rightBorder + this->block_size - 10;
 		scoreboard.y = 40;
 		scoreboard.w = 240;
 		scoreboard.h = 240;
@@ -488,17 +486,17 @@ class GameContext
 		SDL_Rect livescore;
 
 		if (this->game.score < 10) {
-			livescore.x = rightBorder + BLOCK_SIZE + 70;
-			livescore.y = BLOCK_SIZE + 80;
-			livescore.w = BLOCK_SIZE * 2;
-			livescore.h = (BLOCK_SIZE * 6) / 1.75;
+			livescore.x = rightBorder + this->block_size + 70;
+			livescore.y = this->block_size + 80;
+			livescore.w = this->block_size * 2;
+			livescore.h = (this->block_size * 6) / 1.75;
 		} else if (this->game.score >= 10 && this->game.score > 100) {
 		}
 
-		livescore.x = rightBorder + BLOCK_SIZE + 30;
-		livescore.y = BLOCK_SIZE + 80;
-		livescore.w = BLOCK_SIZE * 4;
-		livescore.h = (BLOCK_SIZE * 6) / 1.75;
+		livescore.x = rightBorder + this->block_size + 30;
+		livescore.y = this->block_size + 80;
+		livescore.w = this->block_size * 4;
+		livescore.h = (this->block_size * 6) / 1.75;
 
 		SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &livescore);
@@ -516,10 +514,10 @@ class GameContext
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
-			rect.y = std::get<1>(loc) * BLOCK_SIZE;
-			rect.w = BLOCK_SIZE;
-			rect.h = BLOCK_SIZE;
+			rect.x = std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
+			rect.y = std::get<1>(loc) * this->block_size;
+			rect.w = this->block_size;
+			rect.h = this->block_size;
 
 			SDL_SetRenderDrawColor(this->renderer, game.block.color.r,
 					       game.block.color.g, game.block.color.b, 255);
@@ -528,10 +526,10 @@ class GameContext
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x = std::get<0>(loc) * BLOCK_SIZE + std::get<0>(this->game_offset);
-			rect.y = std::get<1>(loc) * BLOCK_SIZE;
-			rect.w = BLOCK_SIZE;
-			rect.h = BLOCK_SIZE;
+			rect.x = std::get<0>(loc) * this->block_size + std::get<0>(this->game_offset);
+			rect.y = std::get<1>(loc) * this->block_size;
+			rect.w = this->block_size;
+			rect.h = this->block_size;
 			auto rgb = std::get<2>(loc);
 			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
@@ -554,20 +552,24 @@ class GameContext
 
 		// Draw Minigrid
 		SDL_Rect mg_back;
-		mg_back.x = this->game.minigrid.offset_x;
-		mg_back.y = this->game.minigrid.offset_y;
-		mg_back.w = this->game.minigrid.width * BLOCK_SIZE;
-		mg_back.h = this->game.minigrid.height * BLOCK_SIZE;
+		mg_back.x = this->block_size;
+		mg_back.y = this->block_size * 2;
+		mg_back.w = this->game.minigrid.width * this->block_size;
+		mg_back.h = this->game.minigrid.height * this->block_size;
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
+                auto tmp_block_size = this->game.minigrid.width * this->block_size / this->game.minigrid.block.grid_size(); 
 		for (const auto &loc : this->game.minigrid.block.locations) {
+                        if (tmp_block_size > this->block_size) {
+                                tmp_block_size = this->block_size;
+                        }
 			SDL_Rect rect;
 			rect.x =
-			    (std::get<0>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_x + 1;
-			rect.y = (std::get<1>(loc) + 1) * BLOCK_SIZE + this->game.minigrid.offset_y;
-			rect.w = BLOCK_SIZE;
-			rect.h = BLOCK_SIZE;
+                                (std::get<0>(loc)) * tmp_block_size + this->block_size;
+			rect.y = (std::get<1>(loc)) * tmp_block_size + this->block_size * 2;
+			rect.w = tmp_block_size;
+			rect.h = tmp_block_size;
 
 			SDL_SetRenderDrawColor(this->renderer, this->game.minigrid.block.color.r,
 					       this->game.minigrid.block.color.g,
