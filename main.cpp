@@ -33,8 +33,8 @@ struct RGB {
 };
 
 struct Location {
-        int x;
-        int y;
+	int x;
+	int y;
 };
 
 class Block
@@ -50,10 +50,9 @@ class Block
 
 	vector<Location> coordinates()
 	{
-                vector<Location> new_loc;
+		vector<Location> new_loc;
 		for (const auto &location : locations) {
-			new_loc.push_back(
-			    {location.x + offset_x, location.y + offset_y});
+			new_loc.push_back({location.x + offset_x, location.y + offset_y});
 		}
 		return new_loc;
 	}
@@ -158,8 +157,8 @@ class Block
 		for (auto &loc : this->locations) {
 			auto x = loc.x;
 			auto y = loc.y;
-		        loc.x = y;
-		        loc.y = mid - x;
+			loc.x = y;
+			loc.y = mid - x;
 		}
 	}
 };
@@ -172,9 +171,9 @@ struct Minigrid {
 };
 
 struct FilledBlock {
-        int x;
-        int y;
-        RGB color;
+	int x;
+	int y;
+	RGB color;
 };
 
 class GameState
@@ -240,8 +239,7 @@ class GameState
 			Block b;
 			b.locations = block_shapes[num];
 			for (auto loc : b.locations) {
-				if (is_filled(loc.x + b.offset_x, loc.y) +
-				    b.offset_y) {
+				if (is_filled(loc.x + b.offset_x, loc.y) + b.offset_y) {
 					this->gameover = true;
 				}
 			}
@@ -299,8 +297,7 @@ class GameState
 		vector<Location> block_locations = block.coordinates();
 		for (const auto &floc : filled) {
 			for (const auto &bloc : block_locations) {
-				if (bloc.x + x == floc.x &&
-				    bloc.y + y == floc.y) {
+				if (bloc.x + x == floc.x && bloc.y + y == floc.y) {
 					return false;
 				}
 			}
@@ -322,10 +319,10 @@ class GameState
 			}
 			if (filled) {
 				// Erase filled row
-				this->filled.erase(
-				    std::remove_if(this->filled.begin(), this->filled.end(),
-						   [y](auto f) { return f.y == y; }),
-				    this->filled.end());
+				this->filled.erase(std::remove_if(this->filled.begin(),
+								  this->filled.end(),
+								  [y](auto f) { return f.y == y; }),
+						   this->filled.end());
 
 				// Bring down rest of blocks
 				for (auto &loc : this->filled) {
@@ -471,8 +468,7 @@ class GameContext
 		SDL_RenderClear(this->renderer);
 
 		int leftBorder = this->game_offset.x;
-		int rightBorder =
-		    this->game_offset.x + this->game.width * this->block_size;
+		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
 		SDL_Rect board = {
 		    .x = leftBorder,
@@ -524,8 +520,7 @@ class GameContext
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect;
-			rect.x =
-			    loc.x * this->block_size + this->game_offset.x;
+			rect.x = loc.x * this->block_size + this->game_offset.x;
 			rect.y = loc.y * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
@@ -537,8 +532,7 @@ class GameContext
 
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect;
-			rect.x =
-			    loc.x * this->block_size + this->game_offset.x;
+			rect.x = loc.x * this->block_size + this->game_offset.x;
 			rect.y = loc.y * this->block_size;
 			rect.w = this->block_size;
 			rect.h = this->block_size;
