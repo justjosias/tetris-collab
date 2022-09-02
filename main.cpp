@@ -502,6 +502,9 @@ class GameContext
 		SDL_RenderFillRect(renderer, &livescore);
 
 		TTF_Font *Sans = TTF_OpenFont("Sans.ttf", 14);
+                if (!Sans) {
+                        std::cerr << "Failed to open Sans.ttf" << std::endl;
+                }
 		SDL_Color White = {255, 255, 255};
 		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(Sans, "SCORE", White);
 		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
