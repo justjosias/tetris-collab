@@ -448,9 +448,10 @@ class GameContext
 		this->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 		GameState game;
-		game.set_size(40, 20);
+		game.set_size(20, 10);
+                this->game = game;
 
-		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
+		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
 
 		TTF_Init();
 		this->font = TTF_OpenFont("Sans.ttf", 14);
@@ -465,7 +466,8 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
-                this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
+                this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
+
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
