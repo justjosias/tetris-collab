@@ -429,7 +429,7 @@ class GameContext
 
 	GameState game;
 
-	int block_size = 40;
+	int block_size = double(height) * 0.05;
 
 	// Initializes SDL and the game state
 	GameContext()
@@ -491,9 +491,9 @@ class GameContext
 
 		SDL_Rect scoreboard = {
 		    .x = rightBorder + this->block_size - 10,
-		    .y = 40,
-		    .w = 240,
-		    .h = 240,
+		    .y = this->block_size,
+		    .w = this->block_size * 6,
+		    .h = this->block_size * 6,
 		};
 		SDL_RenderFillRect(renderer, &scoreboard);
 
@@ -667,6 +667,8 @@ int main(int argc, char **argv)
 				SDL_GetWindowSize(ctx.window, &w, &h);
 				ctx.width = w;
 				ctx.height = h;
+				ctx.block_size = double(ctx.height) * 0.05;
+				redraw = true;
 				break;
 			}
 		default:
