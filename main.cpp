@@ -449,7 +449,7 @@ class GameContext
 
 		GameState game;
 		game.set_size(20, 10);
-                this->game = game;
+		this->game = game;
 
 		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
 
@@ -466,13 +466,13 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
-                this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
+		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
 
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-		
+
 		SDL_Rect board = {
 		    .x = leftBorder,
 		    .y = game_offset.y,
@@ -662,12 +662,12 @@ int main(int argc, char **argv)
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 				paused = false;
 				break;
-                        case SDL_WINDOWEVENT_RESIZED:
-                                int w, h;
-                                SDL_GetWindowSize(ctx.window, &w, &h);
-                                ctx.width = w;
-                                ctx.height = h;
-                                break;
+			case SDL_WINDOWEVENT_RESIZED:
+				int w, h;
+				SDL_GetWindowSize(ctx.window, &w, &h);
+				ctx.width = w;
+				ctx.height = h;
+				break;
 			}
 		default:
 			break;
