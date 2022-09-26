@@ -458,8 +458,6 @@ class GameContext
 			throw "Failed to load Sans.ttf";
 		}
 		SDL_SetWindowResizable(window, SDL_TRUE);
-
-		this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
 	}
 
 	void draw()
@@ -467,6 +465,7 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
+                this->game_offset = {(width - (game.width * this->block_size / 2)) / 2, 0};
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
@@ -661,6 +660,12 @@ int main(int argc, char **argv)
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 				paused = false;
 				break;
+                        case SDL_WINDOWEVENT_RESIZED:
+                                int w, h;
+                                SDL_GetWindowSize(ctx.window, &w, &h);
+                                ctx.width = w;
+                                ctx.height = h;
+                                break;
 			}
 		default:
 			break;
