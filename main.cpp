@@ -463,6 +463,7 @@ class GameContext
 		}
 
                 Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+                Mix_Volume(-1, 20);
 
                 this->music = Mix_LoadWAV("Korobeiniki.wav");
                 Mix_PlayChannel(-1, this->music, 0);
