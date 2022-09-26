@@ -470,13 +470,14 @@ class GameContext
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
+		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+		
 		SDL_Rect board = {
 		    .x = leftBorder,
 		    .y = game_offset.y,
 		    .w = this->game.width * this->block_size,
 		    .h = this->game.height * this->block_size,
 		};
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &board);
 
 		SDL_Rect scoretext = {
@@ -485,7 +486,6 @@ class GameContext
 		    .w = this->block_size * 5,
 		    .h = (this->block_size * 6) / 3,
 		};
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &scoretext);
 
 		SDL_Rect scoreboard = {
@@ -494,7 +494,6 @@ class GameContext
 		    .w = 240,
 		    .h = 240,
 		};
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &scoreboard);
 
 		int length = std::to_string(abs(game.score)).length();
@@ -505,7 +504,6 @@ class GameContext
 		    .w = (this->block_size * 2) * (double(length) / 2),
 		    .h = (this->block_size * 6) / 1.75,
 		};
-		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &livescore);
 
 		SDL_Color White = {255, 255, 255};
