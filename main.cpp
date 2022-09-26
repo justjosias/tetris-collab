@@ -519,11 +519,12 @@ class GameContext
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
 
 		for (const auto &loc : game.block.coordinates()) {
-			SDL_Rect rect;
-			rect.x = loc.x * this->block_size + this->game_offset.x;
-			rect.y = loc.y * this->block_size;
-			rect.w = this->block_size;
-			rect.h = this->block_size;
+			SDL_Rect rect = {
+			    .x = loc.x * this->block_size + this->game_offset.x,
+			    .y = loc.y * this->block_size,
+			    .w = this->block_size,
+			    .h = this->block_size,
+			};
 
 			SDL_SetRenderDrawColor(this->renderer, game.block.color.r,
 					       game.block.color.g, game.block.color.b, 255);
@@ -531,11 +532,12 @@ class GameContext
 		}
 
 		for (const auto &loc : game.filled) {
-			SDL_Rect rect;
-			rect.x = loc.x * this->block_size + this->game_offset.x;
-			rect.y = loc.y * this->block_size;
-			rect.w = this->block_size;
-			rect.h = this->block_size;
+			SDL_Rect rect = {
+			    .x = loc.x * this->block_size + this->game_offset.x,
+			    .y = loc.y * this->block_size,
+			    .w = this->block_size,
+			    .h = this->block_size,
+			};
 			auto rgb = loc.color;
 			SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
@@ -557,11 +559,12 @@ class GameContext
 		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder, this->height);
 
 		// Draw Minigrid
-		SDL_Rect mg_back;
-		mg_back.x = this->block_size;
-		mg_back.y = this->block_size * 2;
-		mg_back.w = this->game.minigrid.width * this->block_size;
-		mg_back.h = this->game.minigrid.height * this->block_size;
+		SDL_Rect mg_back = {
+		    .x = this->block_size,
+		    .y = this->block_size * 2,
+		    .w = this->game.minigrid.width * this->block_size,
+		    .h = this->game.minigrid.height * this->block_size,
+		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
@@ -571,11 +574,12 @@ class GameContext
 			if (tmp_block_size > this->block_size) {
 				tmp_block_size = this->block_size;
 			}
-			SDL_Rect rect;
-			rect.x = loc.x * tmp_block_size + this->block_size;
-			rect.y = loc.y * tmp_block_size + this->block_size * 2;
-			rect.w = tmp_block_size;
-			rect.h = tmp_block_size;
+			SDL_Rect rect = {
+			    .x = loc.x * tmp_block_size + this->block_size,
+			    .y = loc.y * tmp_block_size + this->block_size * 2,
+			    .w = tmp_block_size,
+			    .h = tmp_block_size,
+			};
 
 			SDL_SetRenderDrawColor(this->renderer, this->game.minigrid.block.color.r,
 					       this->game.minigrid.block.color.g,
