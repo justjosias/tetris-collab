@@ -491,14 +491,6 @@ class GameContext
 		};
 		SDL_RenderFillRect(renderer, &board);
 
-		SDL_Rect scoretext = {
-		    .x = rightBorder + this->block_size + 10,
-		    .y = this->block_size,
-		    .w = this->block_size * 5,
-		    .h = (this->block_size * 6) / 3,
-		};
-		SDL_RenderFillRect(renderer, &scoretext);
-
 		SDL_Rect scoreboard = {
 		    .x = rightBorder + this->block_size - 10,
 		    .y = this->block_size,
@@ -507,11 +499,22 @@ class GameContext
 		};
 		SDL_RenderFillRect(renderer, &scoreboard);
 
+		SDL_Rect scoretext = {
+		    .x = scoreboard.x + (this->block_size / 2),
+		    .y = this->block_size,
+		    .w = this->block_size * 5,
+		    .h = (this->block_size * 6) / 3,
+		};
+		SDL_RenderFillRect(renderer, &scoretext);
+
 		int length = std::to_string(abs(game.score)).length();
 
+		// How far the score needs to be pushed to the left
+		int modifier = length * (block_size / 4) * 2;
+
 		SDL_Rect livescore = {
-		    .x = (rightBorder + this->block_size + 110) - ((length * 10) * 2),
-		    .y = this->block_size + 80,
+		    .x = scoretext.x + (scoretext.w / 2) - modifier,
+		    .y = scoretext.y + (this->block_size * 2),
 		    .w = (this->block_size * 2) * (double(length) / 2),
 		    .h = (this->block_size * 6) / 1.75,
 		};
