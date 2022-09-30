@@ -466,7 +466,7 @@ class GameContext
                 Mix_Volume(-1, 20);
 
                 this->music = Mix_LoadWAV("Korobeiniki.wav");
-                Mix_PlayChannel(-1, this->music, 0);
+                Mix_PlayChannel(-1, this->music, -1);
 
                 SDL_SetWindowResizable(window, SDL_TRUE);
 	}
@@ -491,6 +491,7 @@ class GameContext
 		};
 		SDL_RenderFillRect(renderer, &board);
 
+                // Scoreboard
 		SDL_Rect scoreboard = {
 		    .x = rightBorder + this->block_size - 10,
 		    .y = this->block_size,
@@ -519,7 +520,8 @@ class GameContext
 		    .h = (this->block_size * 6) / 1.75,
 		};
 		SDL_RenderFillRect(renderer, &livescore);
-
+                // End scoreboard
+                
 		SDL_Color White = {255, 255, 255};
 		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
 		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
