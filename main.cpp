@@ -22,8 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 // I love this library
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 
 using std::vector;
 
@@ -430,7 +430,7 @@ class GameContext
 
 	GameState game;
 
-        Mix_Chunk *music;
+	Mix_Chunk *music;
 
 	int block_size = double(height) * 0.05;
 
@@ -462,13 +462,13 @@ class GameContext
 			throw "Failed to load Sans.ttf";
 		}
 
-                Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-                Mix_Volume(-1, 20);
+		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+		Mix_Volume(-1, 20);
 
-                this->music = Mix_LoadWAV("Korobeiniki.wav");
-                Mix_PlayChannel(-1, this->music, -1);
+		this->music = Mix_LoadWAV("Korobeiniki.wav");
+		Mix_PlayChannel(-1, this->music, -1);
 
-                SDL_SetWindowResizable(window, SDL_TRUE);
+		SDL_SetWindowResizable(window, SDL_TRUE);
 	}
 
 	void draw()
@@ -491,7 +491,7 @@ class GameContext
 		};
 		SDL_RenderFillRect(renderer, &board);
 
-                // Scoreboard
+		// Scoreboard
 		SDL_Rect scoreboard = {
 		    .x = rightBorder + this->block_size - 10,
 		    .y = this->block_size,
@@ -520,8 +520,8 @@ class GameContext
 		    .h = (this->block_size * 6) / 1.75,
 		};
 		SDL_RenderFillRect(renderer, &livescore);
-                // End scoreboard
-                
+		// End scoreboard
+
 		SDL_Color White = {255, 255, 255};
 		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
 		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
@@ -574,22 +574,24 @@ class GameContext
 
 		// Draw Minigrid
 		SDL_Rect mg_back = {
-		    .x = this->block_size,
-		    .y = this->block_size * 2,
-		    .w = this->game.minigrid.width * this->block_size,
-		    .h = this->game.minigrid.height * this->block_size,
+                    .x = leftBorder - this->block_size * 6 - this->block_size + 10,
+		    .y = this->block_size,
+		    .w = this->block_size * 6,
+		    .h = this->block_size * 6,
 		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
-		auto tmp_block_size = this->game.minigrid.width * this->block_size /
+                auto block_margin = leftBorder - this->block_size * 6 - this->block_size + 10;
+
+		auto tmp_block_size = this->block_size * 6 /
 				      this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
 			if (tmp_block_size > this->block_size) {
 				tmp_block_size = this->block_size;
 			}
 			SDL_Rect rect = {
-			    .x = loc.x * tmp_block_size + this->block_size,
+			    .x = loc.x * tmp_block_size + block_margin + block_size,
 			    .y = loc.y * tmp_block_size + this->block_size * 2,
 			    .w = tmp_block_size,
 			    .h = tmp_block_size,
@@ -608,7 +610,7 @@ class GameContext
 
 	~GameContext()
 	{
-                Mix_FreeChunk(this->music);
+		Mix_FreeChunk(this->music);
 		SDL_DestroyRenderer(renderer);
 		SDL_DestroyWindow(window);
 		SDL_Quit();
@@ -674,11 +676,11 @@ int main(int argc, char **argv)
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_FOCUS_LOST:
 				paused = true;
-                                Mix_Pause(-1);
+				Mix_Pause(-1);
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 				paused = false;
-                                Mix_Resume(-1);
+				Mix_Resume(-1);
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
 				int w, h;
