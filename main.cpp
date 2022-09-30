@@ -574,7 +574,7 @@ class GameContext
 
 		// Draw Minigrid
 		SDL_Rect mg_back = {
-                    .x = leftBorder - this->block_size * 6 - this->block_size + 10,
+		    .x = leftBorder - this->block_size * 6 - this->block_size + 10,
 		    .y = this->block_size,
 		    .w = this->block_size * 6,
 		    .h = this->block_size * 6,
@@ -582,10 +582,9 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
-                auto block_margin = leftBorder - this->block_size * 6 - this->block_size + 10;
+		auto block_margin = leftBorder - this->block_size * 6 - this->block_size + 10;
 
-		auto tmp_block_size = this->block_size * 6 /
-				      this->game.minigrid.block.grid_size();
+		auto tmp_block_size = this->block_size * 6 / this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
 			if (tmp_block_size > this->block_size) {
 				tmp_block_size = this->block_size;
