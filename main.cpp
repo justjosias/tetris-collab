@@ -674,9 +674,11 @@ int main(int argc, char **argv)
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_FOCUS_LOST:
 				paused = true;
+                                Mix_Pause(-1);
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 				paused = false;
+                                Mix_Resume(-1);
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
 				int w, h;
