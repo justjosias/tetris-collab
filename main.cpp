@@ -204,7 +204,7 @@ class GameState
 
 	// Time (in milliseconds) between letting the tetromino fall a block.
 	// Decreases every level by 75%.
-	int tickspeed = 1000;
+	unsigned int tickspeed = 1000;
 
 	// The height and width of the game board in blocks
 	int height = 20;
@@ -564,8 +564,8 @@ class GameContext
 		SDL_Rect livescore = {
 		    .x = scoretext.x + (scoretext.w / 2) - modifier,
 		    .y = scoretext.y + (this->block_size * 2),
-		    .w = (this->block_size * 2) * (double(scoreLength) / 2),
-		    .h = (this->block_size * 6) / 1.75,
+		    .w = int((this->block_size * 2) * (double(scoreLength) / 2)),
+		    .h = int((this->block_size * 6) / 1.75),
 		};
 		SDL_RenderFillRect(renderer, &livescore);
 		// End scoreboard
@@ -590,8 +590,8 @@ class GameContext
 		SDL_Rect livelevel = {
 		    .x = leveltext.x + (leveltext.w / 2) - levelModifier,
 		    .y = leveltext.y + (this->block_size * 2),
-		    .w = (this->block_size * 2) * (double(levelLength) / 2),
-		    .h = (this->block_size * 6) / 1.75,
+		    .w = int((this->block_size * 2) * (double(levelLength) / 2)),
+		    .h = int((this->block_size * 6) / 1.75),
 		};
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
@@ -599,7 +599,7 @@ class GameContext
 
 
 		// Write words to the screen
-		SDL_Color White = {255, 255, 255};
+		SDL_Color White = {255, 255, 255, 255};
 
 		
 		// Write "SCORE"
@@ -694,7 +694,7 @@ class GameContext
 	}
 };
 
-int main(int argc, char **argv)
+int main()
 {
 	GameContext ctx;
 
