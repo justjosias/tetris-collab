@@ -8,3 +8,7 @@ Linux:
 ```
 $ make && ./TETRIS
 ```
+
+Windows:
+
+Get a better operating system.

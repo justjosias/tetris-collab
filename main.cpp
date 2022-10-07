@@ -41,14 +41,19 @@ struct Location {
 class Block
 {
       public:
+	// The relative locations of individual blocks in a tetromino
 	vector<Location> locations;
+
+	// The current offsets to determine where the tetromino is on the game board.
 	int offset_x = 3;
 	int offset_y = 0;
 
+	// The color of the block in RGB
 	RGB color;
 
 	Block() {}
 
+	// Calculate the current coordinates by applying the offsets to locations
 	vector<Location> coordinates()
 	{
 		vector<Location> new_loc;
@@ -124,6 +129,8 @@ class Block
 		return max_y + 1;
 	}
 
+	// Return the size of the virtual grid surrounding the block.
+	// This is essential for calculating rotation.
 	// THIS IS THE SIZE OF THE GRID OF THE BLOCK NOT THE ENTIRE GRID
 	int grid_size()
 	{
@@ -166,9 +173,6 @@ class Block
 
 struct Minigrid {
 	Block block;
-
-	int width = 3;
-	int height = 3;
 };
 
 struct FilledBlock {
@@ -180,20 +184,35 @@ struct FilledBlock {
 class GameState
 {
       public:
+	// The falling tetromino
 	Block block;
+
+	// The next seven tetrominos on the list to fall.
+	// The pool is refilled when all the contained tetrominos are used.
 	vector<Block> block_pool;
+
+	// The block locations for all the currently filled blocks.
+	// This is used to render the fallen blocks, as well as determine if a row has been cleared.
 	vector<FilledBlock> filled;
 
 	int score = 0;
-	int level = 10000;
+
+	int level = 1;
+
+	// The number of rows needed to be cleared before the next level is reached.
 	int level_left = 5;
+
+	// Time (in milliseconds) between letting the tetromino fall a block.
+	// Decreases every level by 75%.
 	int tickspeed = 1000;
 
+	// The height and width of the game board in blocks
 	int height = 20;
 	int width = 10;
 
 	bool gameover = false;
 
+	// The contents of the grid for previewing the next tetromino in the queue.
 	Minigrid minigrid;
 
 	GameState()
@@ -418,20 +437,34 @@ class GameState
 class GameContext
 {
       public:
+	// SDL values used for rendering the game
 	SDL_Window *window;
 	SDL_Surface *window_surface;
 	SDL_Renderer *renderer;
 
+	// The height and width of the game window
 	int height = 800;
 	int width = 1000;
+
+	// The main font used for rendering text to the screen.
+	// Currently Sans.ttf
 	TTF_Font *font;
 
+	// The x and y offsets for the position of the game itself.
+	// In most cases x will be determined by whatever makes the
+	// game centered and y will be zero.
 	Location game_offset;
 
+	// An instance of GameState, which contains the inner-workings of the game.
+	// State for the game should not be stored elsewhere.
 	GameState game;
 
+	// The song to be run in the background.
+	// Loaded from Korobeiniki.wav
 	Mix_Chunk *music;
 
+	// The size (in pixels) of individual blocks.
+	// A tetromino consists of multiple blocks.
 	int block_size = double(height) * 0.05;
 
 	// Initializes SDL and the game state
@@ -634,18 +667,19 @@ class GameContext
 		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder, this->height);
 
 		// Draw Minigrid
+		auto mg_size = this->block_size * 6;
 		SDL_Rect mg_back = {
-		    .x = leftBorder - this->block_size * 6 - this->block_size + 10,
+		    .x = leftBorder - mg_size - this->block_size + 10,
 		    .y = this->block_size,
-		    .w = this->block_size * 6,
-		    .h = this->block_size * 6,
+		    .w = mg_size,
+		    .h = mg_size,
 		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
 		auto block_margin = leftBorder - this->block_size * 6 - this->block_size + 10;
 
-		auto tmp_block_size = this->block_size * 6 / this->game.minigrid.block.grid_size();
+		auto tmp_block_size = mg_size / this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
 			if (tmp_block_size > this->block_size) {
 				tmp_block_size = this->block_size;
