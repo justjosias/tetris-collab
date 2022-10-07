@@ -624,6 +624,7 @@ class GameContext
 		SDL_Texture *liveLevelDisplay = SDL_CreateTextureFromSurface(renderer, displayLevel);
 		SDL_RenderCopy(renderer, liveLevelDisplay, NULL, &livelevel);
 
+                // Draw the falling tetromino
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect = {
 			    .x = loc.x * this->block_size + this->game_offset.x,
@@ -637,6 +638,7 @@ class GameContext
 			SDL_RenderFillRect(renderer, &rect);
 		}
 
+                // Draw the filled blocks
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect = {
 			    .x = loc.x * this->block_size + this->game_offset.x,
