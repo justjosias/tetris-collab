@@ -651,21 +651,6 @@ class GameContext
 			SDL_RenderFillRect(renderer, &rect);
 		}
 
-		SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
-
-		// Left line
-		SDL_RenderDrawLine(renderer, 0, 0, 0, this->height);
-		// Top line
-		SDL_RenderDrawLine(renderer, 0, 0, this->width, 0);
-		// Right line
-		SDL_RenderDrawLine(renderer, this->width - 1, 0, this->width - 1, this->height);
-		// Bottom line
-		SDL_RenderDrawLine(renderer, 0, this->height - 1, this->width, this->height - 1);
-		// Left Border
-		SDL_RenderDrawLine(renderer, leftBorder, 0, leftBorder, this->height);
-		// Right Border
-		SDL_RenderDrawLine(renderer, rightBorder, 0, rightBorder, this->height);
-
 		// Draw Minigrid
 		auto mg_size = this->block_size * 6;
 		SDL_Rect mg_back = {
