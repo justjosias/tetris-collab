@@ -185,7 +185,7 @@ class GameState
 	vector<FilledBlock> filled;
 
 	int score = 0;
-	int level = 1;
+	int level = 10000;
 	int level_left = 5;
 	int tickspeed = 1000;
 
@@ -473,14 +473,31 @@ class GameContext
 
 	void draw()
 	{
+		// Number of digits in each statistic type
+		int scoreLength = 6;
+		int levelLength = 6;
+		
+		if (std::to_string(abs(game.score)).length() < 6) {
+		scoreLength = std::to_string(abs(game.score)).length();
+		}
+		
+		if (std::to_string(abs(game.level)).length() < 6) {
+		levelLength = std::to_string(abs(game.level)).length();
+		}
+
+		
+		
+		//Set SDL screen to gray
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
 		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
 
+		// Left and right borders of the Tetris board
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
+		//Set SDL screen to black
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 
 		SDL_Rect board = {
@@ -508,29 +525,73 @@ class GameContext
 		};
 		SDL_RenderFillRect(renderer, &scoretext);
 
-		int length = std::to_string(abs(game.score)).length();
 
 		// How far the score needs to be pushed to the left
-		int modifier = length * (block_size / 4) * 2;
+		int modifier = scoreLength * (block_size / 4) * 2;
+		int levelModifier = levelLength * (block_size / 4) * 2;
 
 		SDL_Rect livescore = {
 		    .x = scoretext.x + (scoretext.w / 2) - modifier,
 		    .y = scoretext.y + (this->block_size * 2),
-		    .w = (this->block_size * 2) * (double(length) / 2),
+		    .w = (this->block_size * 2) * (double(scoreLength) / 2),
 		    .h = (this->block_size * 6) / 1.75,
 		};
 		SDL_RenderFillRect(renderer, &livescore);
 		// End scoreboard
 
-		SDL_Color White = {255, 255, 255};
-		SDL_Surface *surfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
-		SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-		SDL_RenderCopy(renderer, Message, NULL, &scoretext);
+		// Level board
+		SDL_Rect levelboard = {
+		    .x = (rightBorder + this->block_size - 10),
+		    .y = this->block_size * 8,
+		    .w = this->block_size * 6,
+		    .h = this->block_size * 6,
+		};
+		SDL_RenderFillRect(renderer, &levelboard);
 
+		SDL_Rect leveltext = {
+		    .x = scoreboard.x + (this->block_size / 2),
+		    .y = this->block_size * 8,
+		    .w = this->block_size * 5,
+		    .h = (this->block_size * 6) / 3,
+		};
+		SDL_RenderFillRect(renderer, &leveltext);
+
+		SDL_Rect livelevel = {
+		    .x = leveltext.x + (leveltext.w / 2) - levelModifier,
+		    .y = leveltext.y + (this->block_size * 2),
+		    .w = (this->block_size * 2) * (double(levelLength) / 2),
+		    .h = (this->block_size * 6) / 1.75,
+		};
+		SDL_RenderFillRect(renderer, &livelevel);
+		// End level board
+
+
+
+		// Write words to the screen
+		SDL_Color White = {255, 255, 255};
+
+		
+		// Write "SCORE"
+		SDL_Surface *scoreSurfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
+		SDL_Texture *scoreMessage = SDL_CreateTextureFromSurface(renderer, scoreSurfaceMessage);
+		SDL_RenderCopy(renderer, scoreMessage, NULL, &scoretext);
+
+		// Write "LEVEL"
+		SDL_Surface *levelSurfaceMessage = TTF_RenderText_Solid(this->font, "LEVEL", White);
+		SDL_Texture *levelMessage = SDL_CreateTextureFromSurface(renderer, levelSurfaceMessage);
+		SDL_RenderCopy(renderer, levelMessage, NULL, &leveltext);
+
+		// Write updated score to screen
 		SDL_Surface *displayScore =
-		    TTF_RenderText_Solid(this->font, std::to_string(game.score).c_str(), White);
+		TTF_RenderText_Solid(this->font, std::to_string(game.score).c_str(), White);
 		SDL_Texture *Message2 = SDL_CreateTextureFromSurface(renderer, displayScore);
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
+
+		// Write updated level to screen
+		SDL_Surface *displayLevel =
+		TTF_RenderText_Solid(this->font, std::to_string(game.level).c_str(), White);
+		SDL_Texture *liveLevelDisplay = SDL_CreateTextureFromSurface(renderer, displayLevel);
+		SDL_RenderCopy(renderer, liveLevelDisplay, NULL, &livelevel);
 
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect = {
