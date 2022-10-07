@@ -511,11 +511,11 @@ class GameContext
 		int levelLength = 6;
 		
 		if (std::to_string(abs(game.score)).length() < 6) {
-		scoreLength = std::to_string(abs(game.score)).length();
+                        scoreLength = std::to_string(abs(game.score)).length();
 		}
 		
 		if (std::to_string(abs(game.level)).length() < 6) {
-		levelLength = std::to_string(abs(game.level)).length();
+			levelLength = std::to_string(abs(game.level)).length();
 		}
 
 		//Set SDL screen to gray
