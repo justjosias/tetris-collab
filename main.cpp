@@ -518,8 +518,6 @@ class GameContext
 		levelLength = std::to_string(abs(game.level)).length();
 		}
 
-		
-		
 		//Set SDL screen to gray
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
