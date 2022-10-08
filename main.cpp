@@ -265,15 +265,16 @@ class GameState
 		}
 	}
 
-        // Checks if any block in the top row of the board is filled
-        bool is_gameover() {
-                for (int i = 0; i < this->width; ++i) {
-                        if (is_filled(i, 0)) {
-                                return true;
-                        }
-                }
-                return false;
-        }
+	// Checks if any block in the top row of the board is filled
+	bool is_gameover()
+	{
+		for (int i = 0; i < this->width; ++i) {
+			if (is_filled(i, 0)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	void next_block()
 	{
@@ -287,7 +288,7 @@ class GameState
 		}
 		auto i = this->block_pool.size() - 1;
 		this->minigrid.block = this->block_pool[i];
-                this->gameover = this->is_gameover();
+		this->gameover = this->is_gameover();
 	}
 
 	void set_size(int h, int w)
@@ -473,6 +474,8 @@ class GameContext
 	// A tetromino consists of multiple blocks.
 	int block_size = double(height) * 0.05;
 
+	int paused = false;
+
 	// Initializes SDL and the game state
 	GameContext()
 	{
@@ -515,15 +518,15 @@ class GameContext
 		// Number of digits in each statistic type
 		int scoreLength = std::to_string(abs(game.score)).length();
 		int levelLength = std::to_string(abs(game.level)).length();
-		
+
 		if (scoreLength > 6) {
-                        scoreLength = 6;
+			scoreLength = 6;
 		}
 		if (levelLength > 6) {
 			levelLength = 6;
 		}
 
-		//Set SDL screen to gray
+		// Set SDL screen to gray
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
@@ -531,7 +534,7 @@ class GameContext
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
-		//Set SDL screen to black
+		// Set SDL screen to black
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 
 		SDL_Rect board = {
@@ -558,7 +561,6 @@ class GameContext
 		    .h = (this->block_size * 6) / 3,
 		};
 		SDL_RenderFillRect(renderer, &scoretext);
-
 
 		// How far the score needs to be pushed to the left
 		int modifier = scoreLength * (block_size / 4) * 2;
@@ -599,35 +601,35 @@ class GameContext
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
 
-
-
 		// Write words to the screen
 		SDL_Color White = {255, 255, 255, 255};
 
-		
 		// Write "SCORE"
 		SDL_Surface *scoreSurfaceMessage = TTF_RenderText_Solid(this->font, "SCORE", White);
-		SDL_Texture *scoreMessage = SDL_CreateTextureFromSurface(renderer, scoreSurfaceMessage);
+		SDL_Texture *scoreMessage =
+		    SDL_CreateTextureFromSurface(renderer, scoreSurfaceMessage);
 		SDL_RenderCopy(renderer, scoreMessage, NULL, &scoretext);
 
 		// Write "LEVEL"
 		SDL_Surface *levelSurfaceMessage = TTF_RenderText_Solid(this->font, "LEVEL", White);
-		SDL_Texture *levelMessage = SDL_CreateTextureFromSurface(renderer, levelSurfaceMessage);
+		SDL_Texture *levelMessage =
+		    SDL_CreateTextureFromSurface(renderer, levelSurfaceMessage);
 		SDL_RenderCopy(renderer, levelMessage, NULL, &leveltext);
 
 		// Write updated score to screen
 		SDL_Surface *displayScore =
-		TTF_RenderText_Solid(this->font, std::to_string(game.score).c_str(), White);
+		    TTF_RenderText_Solid(this->font, std::to_string(game.score).c_str(), White);
 		SDL_Texture *Message2 = SDL_CreateTextureFromSurface(renderer, displayScore);
 		SDL_RenderCopy(renderer, Message2, NULL, &livescore);
 
 		// Write updated level to screen
 		SDL_Surface *displayLevel =
-		TTF_RenderText_Solid(this->font, std::to_string(game.level).c_str(), White);
-		SDL_Texture *liveLevelDisplay = SDL_CreateTextureFromSurface(renderer, displayLevel);
+		    TTF_RenderText_Solid(this->font, std::to_string(game.level).c_str(), White);
+		SDL_Texture *liveLevelDisplay =
+		    SDL_CreateTextureFromSurface(renderer, displayLevel);
 		SDL_RenderCopy(renderer, liveLevelDisplay, NULL, &livelevel);
 
-                // Draw the falling tetromino
+		// Draw the falling tetromino
 		for (const auto &loc : game.block.coordinates()) {
 			SDL_Rect rect = {
 			    .x = loc.x * this->block_size + this->game_offset.x,
@@ -641,7 +643,7 @@ class GameContext
 			SDL_RenderFillRect(renderer, &rect);
 		}
 
-                // Draw the filled blocks
+		// Draw the filled blocks
 		for (const auto &loc : game.filled) {
 			SDL_Rect rect = {
 			    .x = loc.x * this->block_size + this->game_offset.x,
@@ -686,17 +688,26 @@ class GameContext
 		}
 		// End minigrid drawing
 
-                if (this->game.gameover) {
-                        SDL_Rect gameover_box = {
-                                .x = board.x,
-                                .y = board.h / 2 - 100,
-                                .w = board.w,
-                                .h = 200,
-                        };
-                        SDL_Surface *gameover_surface = TTF_RenderText_Solid(this->font, "GAME OVER", { 220, 20, 60, 255 });
-                        SDL_Texture *gameover_message = SDL_CreateTextureFromSurface(renderer, gameover_surface);
-                        SDL_RenderCopy(renderer, gameover_message, NULL, &gameover_box);
-                }
+		std::string message;
+		if (this->game.gameover) {
+			message = "GAME OVER";
+		} else if (this->paused) {
+			message = "PAUSED";
+		} else {
+			message = "";
+		}
+
+		SDL_Rect status_box = {
+		    .x = board.x,
+		    .y = board.h / 2 - 100,
+		    .w = board.w,
+		    .h = 200,
+		};
+		SDL_Surface *status_surface =
+		    TTF_RenderText_Solid(this->font, message.c_str(), {220, 20, 60, 255});
+		SDL_Texture *status_message =
+		    SDL_CreateTextureFromSurface(renderer, status_surface);
+		SDL_RenderCopy(renderer, status_message, NULL, &status_box);
 
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderPresent(this->renderer);
@@ -720,13 +731,12 @@ int main()
 	bool redraw = true;
 	bool should_continue = true;
 	bool rotation_pressed = false;
-	bool paused = false;
 
 	SDL_Event event;
 	while (should_continue) {
 		SDL_PollEvent(&event);
 
-		if (paused) {
+		if (ctx.paused) {
 			if (event.type == SDL_WINDOWEVENT &&
 			    event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
 			} else {
@@ -739,29 +749,29 @@ int main()
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
-                        if (!ctx.game.gameover) {
-                                redraw = true;
-                                switch (event.key.keysym.sym) {
-                                case SDLK_RIGHT:
-                                        ctx.game.right();
-                                        break;
-                                case SDLK_LEFT:
-                                        ctx.game.left();
-                                        break;
-                                case SDLK_DOWN:
-                                        ctx.game.score += 1 * ctx.game.level;
-                                        ctx.game.down();
-                                        break;
-                                case SDLK_UP:
-                                        if (!rotation_pressed) {
-                                                ctx.game.rotate();
-                                                rotation_pressed = true;
-                                        }
-                                        break;
-                                default:
-                                        break;
-                                }
-                        }
+			if (!ctx.game.gameover) {
+				redraw = true;
+				switch (event.key.keysym.sym) {
+				case SDLK_RIGHT:
+					ctx.game.right();
+					break;
+				case SDLK_LEFT:
+					ctx.game.left();
+					break;
+				case SDLK_DOWN:
+					ctx.game.score += 1 * ctx.game.level;
+					ctx.game.down();
+					break;
+				case SDLK_UP:
+					if (!rotation_pressed) {
+						ctx.game.rotate();
+						rotation_pressed = true;
+					}
+					break;
+				default:
+					break;
+				}
+			}
 			break;
 		case SDL_KEYUP:
 			if (event.key.keysym.sym == SDLK_UP) {
@@ -771,11 +781,13 @@ int main()
 		case SDL_WINDOWEVENT:
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_FOCUS_LOST:
-				paused = true;
+				ctx.paused = true;
+				redraw = true;
 				Mix_Pause(-1);
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
-				paused = false;
+				ctx.paused = false;
+				redraw = true;
 				Mix_Resume(-1);
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
@@ -784,7 +796,8 @@ int main()
 				ctx.width = w;
 				ctx.height = h;
 				ctx.block_size = double(ctx.height) * 0.05;
-                                ctx.game_offset = {(ctx.width - (ctx.game.width * ctx.block_size)) / 2, 0};
+				ctx.game_offset = {
+				    (ctx.width - (ctx.game.width * ctx.block_size)) / 2, 0};
 				redraw = true;
 				break;
 			}
