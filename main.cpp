@@ -516,6 +516,7 @@ class GameContext
 	void draw()
 	{
 		// Number of digits in each statistic type
+
 		int scoreLength = std::to_string(abs(game.score)).length();
 		int levelLength = std::to_string(abs(game.level)).length();
 
@@ -546,57 +547,59 @@ class GameContext
 		SDL_RenderFillRect(renderer, &board);
 
 		// Scoreboard
+		int widthModifier = 5;
+
 		SDL_Rect scoreboard = {
-		    .x = rightBorder + this->block_size - 10,
-		    .y = this->block_size,
-		    .w = this->block_size * 6,
-		    .h = this->block_size * 6,
+		    .x = rightBorder + (this->block_size / 4),
+		    .y = this->block_size / 4,
+		    .w = this->block_size * widthModifier,
+		    .h = this->block_size * widthModifier,
 		};
 		SDL_RenderFillRect(renderer, &scoreboard);
 
 		SDL_Rect scoretext = {
-		    .x = scoreboard.x + (this->block_size / 2),
-		    .y = this->block_size,
-		    .w = this->block_size * 5,
-		    .h = (this->block_size * 6) / 3,
+		    .x = scoreboard.x + scoreboard.w / 6,
+		    .y = scoreboard.y,
+		    .w = (scoreboard.w * 2) / 3,
+		    .h = scoreboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &scoretext);
 
 		// How far the score needs to be pushed to the left
-		int modifier = scoreLength * (block_size / 4) * 2;
-		int levelModifier = levelLength * (block_size / 4) * 2;
+		int modifier = scoreLength * (block_size / 4);
+		int levelModifier = levelLength * (block_size / 4);
 
 		SDL_Rect livescore = {
-		    .x = scoretext.x + (scoretext.w / 2) - modifier,
-		    .y = scoretext.y + (this->block_size * 2),
-		    .w = int((this->block_size * 2) * (double(scoreLength) / 2)),
-		    .h = int((this->block_size * 6) / 1.75),
+		    .x = scoreboard.x + (scoreboard.w / 2) - modifier,
+		    .y = scoreboard.y + (scoreboard.h * 2 / 5),
+		    .w = (scoreboard.w / (widthModifier * 2)) * scoreLength,
+		    .h = scoreboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &livescore);
 		// End scoreboard
 
 		// Level board
 		SDL_Rect levelboard = {
-		    .x = (rightBorder + this->block_size - 10),
-		    .y = this->block_size * 8,
-		    .w = this->block_size * 6,
-		    .h = this->block_size * 6,
+		    .x = rightBorder + (this->block_size / 4),
+		    .y = this->block_size * (widthModifier + 1) - this->block_size / 2,
+		    .w = this->block_size * widthModifier,
+		    .h = this->block_size * widthModifier,
 		};
 		SDL_RenderFillRect(renderer, &levelboard);
 
 		SDL_Rect leveltext = {
-		    .x = scoreboard.x + (this->block_size / 2),
-		    .y = this->block_size * 8,
-		    .w = this->block_size * 5,
-		    .h = (this->block_size * 6) / 3,
+		    .x = levelboard.x + levelboard.w / 6,
+		    .y = levelboard.y,
+		    .w = (levelboard.w * 2) / 3,
+		    .h = scoreboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &leveltext);
 
 		SDL_Rect livelevel = {
-		    .x = leveltext.x + (leveltext.w / 2) - levelModifier,
-		    .y = leveltext.y + (this->block_size * 2),
-		    .w = int((this->block_size * 2) * (double(levelLength) / 2)),
-		    .h = int((this->block_size * 6) / 1.75),
+		    .x = levelboard.x + (levelboard.w / 2) - levelModifier,
+		    .y = levelboard.y + (levelboard.h * 2 / 5),
+		    .w = (levelboard.w / (widthModifier * 2)) * levelLength,
+		    .h = levelboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
