@@ -258,17 +258,22 @@ class GameState
 			}
 			Block b;
 			b.locations = block_shapes[num];
-			for (auto loc : b.locations) {
-				if (is_filled(loc.x + b.offset_x, loc.y) + b.offset_y) {
-					this->gameover = true;
-				}
-			}
 			b.color = block_colors[num];
 
 			this->block_pool.push_back(b);
 			taken.push_back(num);
 		}
 	}
+
+        // Checks if any block in the top row of the board is filled
+        bool is_gameover() {
+                for (int i = 0; i < this->width; ++i) {
+                        if (is_filled(i, 0)) {
+                                return true;
+                        }
+                }
+                return false;
+        }
 
 	void next_block()
 	{
@@ -282,6 +287,7 @@ class GameState
 		}
 		auto i = this->block_pool.size() - 1;
 		this->minigrid.block = this->block_pool[i];
+                this->gameover = this->is_gameover();
 	}
 
 	void set_size(int h, int w)
@@ -507,15 +513,14 @@ class GameContext
 	void draw()
 	{
 		// Number of digits in each statistic type
-		int scoreLength = 6;
-		int levelLength = 6;
+		int scoreLength = std::to_string(abs(game.score)).length();
+		int levelLength = std::to_string(abs(game.level)).length();
 		
-		if (std::to_string(abs(game.score)).length() < 6) {
-                        scoreLength = std::to_string(abs(game.score)).length();
+		if (scoreLength > 6) {
+                        scoreLength = 6;
 		}
-		
-		if (std::to_string(abs(game.level)).length() < 6) {
-			levelLength = std::to_string(abs(game.level)).length();
+		if (levelLength > 6) {
+			levelLength = 6;
 		}
 
 		//Set SDL screen to gray
@@ -681,6 +686,18 @@ class GameContext
 		}
 		// End minigrid drawing
 
+                if (this->game.gameover) {
+                        SDL_Rect gameover_box = {
+                                .x = board.x,
+                                .y = board.h / 2 - 100,
+                                .w = board.w,
+                                .h = 200,
+                        };
+                        SDL_Surface *gameover_surface = TTF_RenderText_Solid(this->font, "GAME OVER", { 220, 20, 60, 255 });
+                        SDL_Texture *gameover_message = SDL_CreateTextureFromSurface(renderer, gameover_surface);
+                        SDL_RenderCopy(renderer, gameover_message, NULL, &gameover_box);
+                }
+
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderPresent(this->renderer);
 	}
@@ -722,27 +739,29 @@ int main()
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
-			redraw = true;
-			switch (event.key.keysym.sym) {
-			case SDLK_RIGHT:
-				ctx.game.right();
-				break;
-			case SDLK_LEFT:
-				ctx.game.left();
-				break;
-			case SDLK_DOWN:
-				ctx.game.score += 1 * ctx.game.level;
-				ctx.game.down();
-				break;
-			case SDLK_UP:
-				if (!rotation_pressed) {
-					ctx.game.rotate();
-					rotation_pressed = true;
-				}
-				break;
-			default:
-				break;
-			}
+                        if (!ctx.game.gameover) {
+                                redraw = true;
+                                switch (event.key.keysym.sym) {
+                                case SDLK_RIGHT:
+                                        ctx.game.right();
+                                        break;
+                                case SDLK_LEFT:
+                                        ctx.game.left();
+                                        break;
+                                case SDLK_DOWN:
+                                        ctx.game.score += 1 * ctx.game.level;
+                                        ctx.game.down();
+                                        break;
+                                case SDLK_UP:
+                                        if (!rotation_pressed) {
+                                                ctx.game.rotate();
+                                                rotation_pressed = true;
+                                        }
+                                        break;
+                                default:
+                                        break;
+                                }
+                        }
 			break;
 		case SDL_KEYUP:
 			if (event.key.keysym.sym == SDLK_UP) {
@@ -773,7 +792,7 @@ int main()
 			break;
 		}
 
-		if (SDL_GetTicks() - last_time > ctx.game.tickspeed) {
+		if (SDL_GetTicks() - last_time > ctx.game.tickspeed && !ctx.game.gameover) {
 			ctx.game.down();
 			last_time = SDL_GetTicks();
 			redraw = true;
@@ -783,10 +802,6 @@ int main()
 			ctx.draw();
 			SDL_UpdateWindowSurface(ctx.window);
 			redraw = false;
-		}
-
-		if (ctx.game.gameover) {
-			break;
 		}
 
 		// Keep the game from hogging all the CPU
