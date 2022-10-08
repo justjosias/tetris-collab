@@ -522,8 +522,6 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 84, 84, 84, 255);
 		SDL_RenderClear(this->renderer);
 
-		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
-
 		// Left and right borders of the Tetris board
 		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
@@ -767,6 +765,7 @@ int main()
 				ctx.width = w;
 				ctx.height = h;
 				ctx.block_size = double(ctx.height) * 0.05;
+                                ctx.game_offset = {(ctx.width - (ctx.game.width * ctx.block_size)) / 2, 0};
 				redraw = true;
 				break;
 			}
