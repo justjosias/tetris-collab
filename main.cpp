@@ -451,7 +451,7 @@ class GameContext
 
 	// The height and width of the game window
 	int height = 800;
-	int width = 1000;
+	int width = 630;
 
 	// The main font used for rendering text to the screen.
 	// Currently Sans.ttf
@@ -496,7 +496,7 @@ class GameContext
 		game.set_size(20, 10);
 		this->game = game;
 
-		this->game_offset = {(width - (game.width * this->block_size)) / 2, 0};
+		this->game_offset = {0, 0};
 
 		TTF_Init();
 		this->font = TTF_OpenFont("Sans.ttf", 14);
@@ -532,14 +532,13 @@ class GameContext
 		SDL_RenderClear(this->renderer);
 
 		// Left and right borders of the Tetris board
-		int leftBorder = this->game_offset.x;
 		int rightBorder = this->game_offset.x + this->game.width * this->block_size;
 
 		// Set SDL screen to black
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 
 		SDL_Rect board = {
-		    .x = leftBorder,
+		    .x = this->game_offset.x,
 		    .y = game_offset.y,
 		    .w = this->game.width * this->block_size,
 		    .h = this->game.height * this->block_size,
@@ -547,13 +546,13 @@ class GameContext
 		SDL_RenderFillRect(renderer, &board);
 
 		// Scoreboard
-		int widthModifier = 5;
+		int box_scale = 5;
 
 		SDL_Rect scoreboard = {
 		    .x = rightBorder + (this->block_size / 4),
 		    .y = this->block_size / 4,
-		    .w = this->block_size * widthModifier,
-		    .h = this->block_size * widthModifier,
+		    .w = this->block_size * box_scale,
+		    .h = this->block_size * box_scale,
 		};
 		SDL_RenderFillRect(renderer, &scoreboard);
 
@@ -572,7 +571,7 @@ class GameContext
 		SDL_Rect livescore = {
 		    .x = scoreboard.x + (scoreboard.w / 2) - modifier,
 		    .y = scoreboard.y + (scoreboard.h * 2 / 5),
-		    .w = (scoreboard.w / (widthModifier * 2)) * scoreLength,
+		    .w = (scoreboard.w / (box_scale * 2)) * scoreLength,
 		    .h = scoreboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &livescore);
@@ -581,9 +580,9 @@ class GameContext
 		// Level board
 		SDL_Rect levelboard = {
 		    .x = rightBorder + (this->block_size / 4),
-		    .y = this->block_size * (widthModifier + 1) - this->block_size / 2,
-		    .w = this->block_size * widthModifier,
-		    .h = this->block_size * widthModifier,
+		    .y = this->block_size * (box_scale + 1) - this->block_size / 2,
+		    .w = this->block_size * box_scale,
+		    .h = this->block_size * box_scale,
 		};
 		SDL_RenderFillRect(renderer, &levelboard);
 
@@ -598,7 +597,7 @@ class GameContext
 		SDL_Rect livelevel = {
 		    .x = levelboard.x + (levelboard.w / 2) - levelModifier,
 		    .y = levelboard.y + (levelboard.h * 2 / 5),
-		    .w = (levelboard.w / (widthModifier * 2)) * levelLength,
+		    .w = (levelboard.w / (box_scale * 2)) * levelLength,
 		    .h = levelboard.h / 3,
 		};
 		SDL_RenderFillRect(renderer, &livelevel);
@@ -660,17 +659,15 @@ class GameContext
 		}
 
 		// Draw Minigrid
-		auto mg_size = this->block_size * 6;
-		SDL_Rect mg_back = {
-		    .x = leftBorder - mg_size - this->block_size + 10,
-		    .y = this->block_size,
-		    .w = mg_size,
-		    .h = mg_size,
+		auto mg_size = this->block_size * box_scale;
+                SDL_Rect mg_back = {
+		    .x = rightBorder + (this->block_size / 4),
+		    .y = this->block_size * (box_scale * 2 + 1), //- this->block_size / 2,
+		    .w = this->block_size * box_scale,
+		    .h = this->block_size * box_scale,
 		};
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
-
-		auto block_margin = leftBorder - this->block_size * 6 - this->block_size + 10;
 
 		auto tmp_block_size = mg_size / this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
@@ -678,8 +675,8 @@ class GameContext
 				tmp_block_size = this->block_size;
 			}
 			SDL_Rect rect = {
-			    .x = loc.x * tmp_block_size + block_margin + block_size,
-			    .y = loc.y * tmp_block_size + this->block_size * 2,
+			    .x = loc.x * tmp_block_size + mg_back.x + block_size,
+			    .y = loc.y * tmp_block_size + mg_back.y + block_size,
 			    .w = tmp_block_size,
 			    .h = tmp_block_size,
 			};
@@ -799,8 +796,6 @@ int main()
 				ctx.width = w;
 				ctx.height = h;
 				ctx.block_size = double(ctx.height) * 0.05;
-				ctx.game_offset = {
-				    (ctx.width - (ctx.game.width * ctx.block_size)) / 2, 0};
 				redraw = true;
 				break;
 			}
