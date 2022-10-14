@@ -692,7 +692,7 @@ class GameContext
 
 		std::string message;
 		if (this->game.gameover) {
-			Mix_Pause(-1);
+			Mix_HaltChannel(-1);
 			message = "GAME OVER";
 		} else if (this->paused) {
 			message = "PAUSED";
@@ -780,7 +780,7 @@ int main()
 			case SDLK_r: {
 				GameState g;
 				ctx.game = g;
-				ctx.game.gameover = false;
+				Mix_PlayChannel(-1, ctx.music, -1);
 			} break;
 			}
 			break;
