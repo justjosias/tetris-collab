@@ -861,6 +861,7 @@ int main()
 			case SDLK_r: {
 				GameState g;
 				ctx.game = g;
+				Mix_HaltChannel(-1);
 				Mix_PlayChannel(-1, ctx.music, -1);
 			} break;
 			}
