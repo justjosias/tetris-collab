@@ -25,6 +25,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 using std::vector;
 
 struct RGB {
@@ -503,6 +507,13 @@ class GameContext
 	int block_size = double(height) * 0.05;
 	int paused = false;
 
+	// Current state within the loop
+	SDL_Event event;
+	int last_time;
+	bool redraw = true;
+	bool should_continue = true;
+	bool rotation_pressed = false;
+
 	// Initializes SDL and the game state
 	GameContext()
 	{
@@ -526,7 +537,7 @@ class GameContext
 		this->game_offset = {10, 10};
 
 		TTF_Init();
-		this->font = TTF_OpenFont("Sans.ttf", 14);
+		this->font = TTF_OpenFont("assets/Sans.ttf", 14);
 		if (!this->font) {
 			throw "Failed to load Sans.ttf";
 		}
@@ -534,16 +545,25 @@ class GameContext
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 		Mix_Volume(-1, 20);
 
-		this->music = Mix_LoadWAV("Korobeiniki.wav");
+		this->music = Mix_LoadWAV("assets/Korobeiniki.wav");
 		Mix_PlayChannel(-1, this->music, -1);
 
 		SDL_SetWindowResizable(window, SDL_TRUE);
+
+		this->last_time = SDL_GetTicks();
 	}
 
 	void resize(int w, int h)
 	{
-		this->width = w;
-		this->height = h;
+		// Proportionally resize based on height first, then width
+		if (h != this->height) {
+			this->height = h;
+			this->width = height / 1.295;
+		} else if (w != this->width) {
+			this->width = w;
+			this->height = width * 1.295;
+		}
+		SDL_SetWindowSize(this->window, width, height);
 		this->block_size = double(this->height - this->game_offset.y) * 0.05;
 		this->game_offset = {this->block_size / 4, this->block_size / 4};
 	}
@@ -558,6 +578,98 @@ class GameContext
 	{
 		this->paused = false;
 		Mix_Resume(-1);
+	}
+
+	void loop()
+	{
+		SDL_PollEvent(&this->event);
+
+		if (this->paused) {
+			if (this->event.type == SDL_WINDOWEVENT &&
+			    this->event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+			} else {
+				return;
+			}
+		}
+
+		switch (this->event.type) {
+		case SDL_QUIT:
+			this->should_continue = false;
+			break;
+		case SDL_KEYDOWN:
+			if (!this->game.gameover) {
+				this->redraw = true;
+				switch (this->event.key.keysym.sym) {
+				case SDLK_RIGHT:
+					this->game.right();
+					break;
+				case SDLK_LEFT:
+					this->game.left();
+					break;
+				case SDLK_DOWN:
+					this->game.down();
+					break;
+				case SDLK_UP:
+					if (!this->rotation_pressed) {
+						this->game.rotate();
+						this->rotation_pressed = true;
+					}
+					break;
+				case SDLK_SPACE:
+					this->game.drop();
+					break;
+				default:
+					break;
+				}
+			}
+			// Unconditional keypresses
+			switch (this->event.key.keysym.sym) {
+			case SDLK_r: {
+				GameState g;
+				this->game = g;
+				Mix_HaltChannel(-1);
+				Mix_PlayChannel(-1, this->music, -1);
+			} break;
+			}
+			break;
+		case SDL_KEYUP:
+			if (this->event.key.keysym.sym == SDLK_UP) {
+				this->rotation_pressed = false;
+			}
+			break;
+		case SDL_WINDOWEVENT:
+			this->redraw = true;
+			switch (this->event.window.event) {
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				this->pause();
+				break;
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				this->resume();
+				break;
+			case SDL_WINDOWEVENT_RESIZED:
+				int w, h;
+				SDL_GetWindowSize(this->window, &w, &h);
+				this->resize(w, h);
+				break;
+			}
+		default:
+			break;
+		}
+
+		if (SDL_GetTicks() - last_time > this->game.tickspeed && !this->game.gameover) {
+			this->game.down();
+			last_time = SDL_GetTicks();
+			this->redraw = true;
+		}
+
+		if (this->redraw) {
+			this->draw();
+			SDL_UpdateWindowSurface(this->window);
+			this->redraw = false;
+		}
+
+		// Keep the game from hogging all the CPU
+		SDL_Delay(10);
 	}
 
 	void draw()
@@ -804,107 +916,21 @@ class GameContext
 	}
 };
 
+GameContext ctx;
+void do_loop()
+{
+	ctx.loop();
+}
+
 int main()
 {
-	GameContext ctx;
-
-	auto last_time = SDL_GetTicks();
-
-	bool redraw = true;
-	bool should_continue = true;
-	bool rotation_pressed = false;
-
-	SDL_Event event;
-	while (should_continue) {
-		SDL_PollEvent(&event);
-
-		if (ctx.paused) {
-			if (event.type == SDL_WINDOWEVENT &&
-			    event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-			} else {
-				continue;
-			}
-		}
-
-		switch (event.type) {
-		case SDL_QUIT:
-			should_continue = false;
-			break;
-		case SDL_KEYDOWN:
-			if (!ctx.game.gameover) {
-				redraw = true;
-				switch (event.key.keysym.sym) {
-				case SDLK_RIGHT:
-					ctx.game.right();
-					break;
-				case SDLK_LEFT:
-					ctx.game.left();
-					break;
-				case SDLK_DOWN:
-					ctx.game.down();
-					break;
-				case SDLK_UP:
-					if (!rotation_pressed) {
-						ctx.game.rotate();
-						rotation_pressed = true;
-					}
-					break;
-				case SDLK_SPACE:
-					ctx.game.drop();
-					break;
-				default:
-					break;
-				}
-			}
-			// Unconditional keypresses
-			switch (event.key.keysym.sym) {
-			case SDLK_r: {
-				GameState g;
-				ctx.game = g;
-				Mix_HaltChannel(-1);
-				Mix_PlayChannel(-1, ctx.music, -1);
-			} break;
-			}
-			break;
-		case SDL_KEYUP:
-			if (event.key.keysym.sym == SDLK_UP) {
-				rotation_pressed = false;
-			}
-			break;
-		case SDL_WINDOWEVENT:
-			redraw = true;
-			switch (event.window.event) {
-			case SDL_WINDOWEVENT_FOCUS_LOST:
-				ctx.pause();
-				break;
-			case SDL_WINDOWEVENT_FOCUS_GAINED:
-				ctx.resume();
-				break;
-			case SDL_WINDOWEVENT_RESIZED:
-				int w, h;
-				SDL_GetWindowSize(ctx.window, &w, &h);
-				ctx.resize(w, h);
-				break;
-			}
-		default:
-			break;
-		}
-
-		if (SDL_GetTicks() - last_time > ctx.game.tickspeed && !ctx.game.gameover) {
-			ctx.game.down();
-			last_time = SDL_GetTicks();
-			redraw = true;
-		}
-
-		if (redraw) {
-			ctx.draw();
-			SDL_UpdateWindowSurface(ctx.window);
-			redraw = false;
-		}
-
-		// Keep the game from hogging all the CPU
-		SDL_Delay(10);
+#ifdef __EMSCRIPTEN__
+        emscripten_set_main_loop(do_loop, 0, 1);
+#else
+	while (ctx.should_continue) {
+		ctx.loop();
 	}
+#endif
 
 	return 0;
 }
