@@ -403,19 +403,26 @@ class GameState
 		}
 	}
 
-	Block bottom()
+	Block bottom(int *dropped)
 	{
+		int d = 0;
 		Block tmp = this->block;
 		while (tmp.can_descend(&filled, height)) {
 			tmp.offset_y += 1;
+			d += 1;
+		}
+		if (dropped) {
+			*dropped = d;
 		}
 		return tmp;
 	}
 
 	void drop()
 	{
-		this->block = this->bottom();
+		int dropped = 0;
+		this->block = this->bottom(&dropped);
 		this->down();
+		this->score += dropped * this->level;
 	}
 
 	bool can_rotate()
@@ -668,7 +675,7 @@ class GameContext
 
 			// Draw the shadow tetromino
 			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-			auto shadow = game.bottom();
+			auto shadow = game.bottom(nullptr);
 			for (const auto &loc : shadow.coordinates()) {
 				SDL_Rect rect = {
 				    .x = loc.x * this->block_size + this->game_offset.x,
