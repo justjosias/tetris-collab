@@ -478,8 +478,8 @@ class GameContext
 	SDL_Renderer *renderer;
 
 	// The height and width of the game window
-	int height = 820;
-	int width = 630;
+	int height = 835;
+	int width = 645;
 
 	// The main font used for rendering text to the screen.
 	// Currently Sans.ttf
@@ -780,13 +780,13 @@ class GameContext
 		}
 
 		SDL_Rect status_box = {
-		    .x = board.x,
-		    .y = board.h / 2 - 100,
-		    .w = board.w,
-		    .h = 200,
+		    .x = board.x + (this->block_size * 2),
+		    .y = board.h / 2 - this->height / 8,
+		    .w = board.w - (this->block_size * 4),
+		    .h = this->height / 8,
 		};
 		SDL_Surface *status_surface =
-		    TTF_RenderText_Solid(this->font, message.c_str(), {220, 20, 60, 255});
+		    TTF_RenderText_Solid(this->font, message.c_str(), White);
 		SDL_Texture *status_message =
 		    SDL_CreateTextureFromSurface(renderer, status_surface);
 		SDL_RenderCopy(renderer, status_message, NULL, &status_box);
