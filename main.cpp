@@ -216,8 +216,14 @@ class GameState
 	// This is used to render the fallen blocks, as well as determine if a row has been cleared.
 	vector<FilledBlock> filled;
 
+	// The current score of the player. Score is added when:
+	// * A tetromino descends (1 * level)
+	// * A row is cleared ((rows * 100) * rows, if less than 3, otherwise 2000. Multiplied by level)
+	// * With a complete clear, the former rule applies and is also multiplied by 10.
 	int score = 0;
 
+	// The current level, incremented for every five rows cleared.
+	// Used as a multiplier when calculating the score.
 	int level = 1;
 
 	// The number of rows needed to be cleared before the next level is reached.
@@ -488,7 +494,6 @@ class GameContext
 	// The size (in pixels) of individual blocks.
 	// A tetromino consists of multiple blocks.
 	int block_size = double(height) * 0.05;
-
 	int paused = false;
 
 	// Initializes SDL and the game state
