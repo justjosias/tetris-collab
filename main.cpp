@@ -631,38 +631,38 @@ class GameContext
 		    SDL_CreateTextureFromSurface(renderer, displayLevel);
 		SDL_RenderCopy(renderer, liveLevelDisplay, NULL, &livelevel);
 
-                if (!this->paused && !this->game.gameover) {
-                        // Draw the falling tetromino
-                        for (const auto &loc : game.block.coordinates()) {
-                                SDL_Rect rect = {
-                                        .x = loc.x * this->block_size + this->game_offset.x,
-                                        .y = loc.y * this->block_size,
-                                        .w = this->block_size,
-                                        .h = this->block_size,
-                                };
+		if (!this->paused && !this->game.gameover) {
+			// Draw the falling tetromino
+			for (const auto &loc : game.block.coordinates()) {
+				SDL_Rect rect = {
+				    .x = loc.x * this->block_size + this->game_offset.x,
+				    .y = loc.y * this->block_size,
+				    .w = this->block_size,
+				    .h = this->block_size,
+				};
 
-                                SDL_SetRenderDrawColor(this->renderer, game.block.color.r,
-                                                       game.block.color.g, game.block.color.b, 255);
-                                SDL_RenderFillRect(renderer, &rect);
-                        }
+				SDL_SetRenderDrawColor(this->renderer, game.block.color.r,
+						       game.block.color.g, game.block.color.b, 255);
+				SDL_RenderFillRect(renderer, &rect);
+			}
 
-                        // Draw the filled blocks
-                        for (const auto &loc : game.filled) {
-                                SDL_Rect rect = {
-                                        .x = loc.x * this->block_size + this->game_offset.x,
-                                        .y = loc.y * this->block_size,
-                                        .w = this->block_size,
-                                        .h = this->block_size,
-                                };
-                                auto rgb = loc.color;
-                                SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
-                                SDL_RenderFillRect(renderer, &rect);
-                        }
-                }
+			// Draw the filled blocks
+			for (const auto &loc : game.filled) {
+				SDL_Rect rect = {
+				    .x = loc.x * this->block_size + this->game_offset.x,
+				    .y = loc.y * this->block_size,
+				    .w = this->block_size,
+				    .h = this->block_size,
+				};
+				auto rgb = loc.color;
+				SDL_SetRenderDrawColor(this->renderer, rgb.r, rgb.g, rgb.b, 255);
+				SDL_RenderFillRect(renderer, &rect);
+			}
+		}
 
 		// Draw Minigrid
 		auto mg_size = this->block_size * box_scale;
-                SDL_Rect mg_back = {
+		SDL_Rect mg_back = {
 		    .x = rightBorder + (this->block_size / 4),
 		    .y = this->block_size * (box_scale * 2 + 1),
 		    .w = this->block_size * box_scale,
@@ -692,7 +692,7 @@ class GameContext
 
 		std::string message;
 		if (this->game.gameover) {
-                        Mix_Pause(-1);
+			Mix_Pause(-1);
 			message = "GAME OVER";
 		} else if (this->paused) {
 			message = "PAUSED";
@@ -771,6 +771,10 @@ int main()
 						rotation_pressed = true;
 					}
 					break;
+				case SDLK_r: {
+					GameState g;
+					ctx.game = g;
+				} break;
 				default:
 					break;
 				}
