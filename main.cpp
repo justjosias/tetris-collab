@@ -831,19 +831,6 @@ int main()
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
-
-			std::cout << "width:" << 1 + ctx.game.block.max_x() - ctx.game.block.min_x()
-				  << std::endl;
-			std::cout << "height:"
-				  << 1 + ctx.game.block.max_y() - ctx.game.block.min_y()
-				  << std::endl;
-
-			std::cout << "min x:" << ctx.game.minigrid.block.min_x() << std::endl;
-			std::cout << "min y:" << ctx.game.minigrid.block.min_y() << std::endl;
-
-			std::cout << "max x:" << ctx.game.minigrid.block.max_x() << std::endl;
-			std::cout << "max y:" << ctx.game.minigrid.block.max_y() << std::endl;
-
 			if (!ctx.game.gameover) {
 				redraw = true;
 				switch (event.key.keysym.sym) {
