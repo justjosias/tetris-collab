@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Loading Tetris...</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <style>
+    canvas { display: block; margin: 0 auto; max-height: 90vh; }
+    .container { text-align: center; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+</div>
+
+<script type='text/javascript'>
+  var Module = {
+  preRun: [],
+  postRun: [],
+  print: function(stdout){ console.log(stdout); },
+  printErr: function(stderr) { console.error(stderr); },
+  canvas: (function() {
+  var canvas = document.getElementById('canvas');
+  canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+  return canvas;
+  })(),
+  setStatus: function(text) {
+  if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+    if (text === Module.setStatus.last.text) return;
+    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+    var now = Date.now();
+    if (m && now - Module.setStatus.last.time < 30) return;
+    Module.setStatus.last.time = now;
+    Module.setStatus.last.text = text;
+  },
+  totalDependencies: 0,
+  monitorRunDependencies: function(left) {
+    this.totalDependencies = Math.max(this.totalDependencies, left);
+    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+  }
+  };
+  Module.setStatus('Downloading...');
+  window.onerror = function(event) {
+    Module.setStatus('Exception thrown, see JavaScript console');
+    Module.setStatus = function(text) {
+      if (text) Module.printErr('[post-exception status] ' + text);
+    };
+  };
+</script>
+<script async type="text/javascript" src="TETRIS.js"></script>
+</body>
+</html>
+
