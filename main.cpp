@@ -202,10 +202,6 @@ class Block
 	}
 };
 
-struct Minigrid {
-	Block block;
-};
-
 class GameState
 {
       public:
@@ -243,8 +239,8 @@ class GameState
 
 	bool gameover = false;
 
-	// The contents of the grid for previewing the next tetromino in the queue.
-	Minigrid minigrid;
+	// The upcoming tetromino displayed in the preview box
+	Block preview_block;
 
 	GameState()
 	{
@@ -318,7 +314,7 @@ class GameState
 			this->replenish_pool();
 		}
 		auto i = this->block_pool.size() - 1;
-		this->minigrid.block = this->block_pool[i];
+		this->preview_block = this->block_pool[i];
 		this->gameover = this->is_gameover();
 	}
 
@@ -842,28 +838,28 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
-		for (const auto &loc : this->game.minigrid.block.locations) {
+		for (const auto &loc : this->game.preview_block.locations) {
 
-			// Used for when the minigrid does not start in the upper left hand corner
+			// Used for when the preview box does not start in the upper left hand corner
 			// Takes the minimum x value and subtracts the lowest possible grid value
 			// (3) If the x is greater than 3, the multiplication will result in a
 			// number > 0 This will move the block to the upper left corner of the
-			// minigrid.
-			auto widthModifier = (game.minigrid.block.min_x() - 3) * 2;
+			// preview box.
+			auto widthModifier = (game.preview_block.min_x() - 3) * 2;
 
 			// Converts the width and height of the block into pixels
-			auto blockWidth = (1 + widthModifier + game.minigrid.block.max_x() -
-					   game.minigrid.block.min_x()) *
+			auto blockWidth = (1 + widthModifier + game.preview_block.max_x() -
+					   game.preview_block.min_x()) *
 					  this->block_size;
 			auto blockHeight =
-			    (1 + game.minigrid.block.max_y() - game.minigrid.block.min_y()) *
+			    (1 + game.preview_block.max_y() - game.preview_block.min_y()) *
 			    this->block_size;
 
-			// Designates the x and y coordinate of the minigrid
+			// Designates the x and y coordinate of the preview box
 			auto preview_x = ((box_scale * this->block_size) - blockWidth) / 2;
 			auto preview_y = ((box_scale * this->block_size) - blockHeight) / 2;
 
-			// Creates the rectangle for the minigrid drawing
+			// Creates the rectangle for the preview box drawing
 			SDL_Rect rect = {
 			    .x = loc.x * this->block_size + mg_back.x + preview_x,
 			    .y = loc.y * this->block_size + mg_back.y + preview_y,
@@ -871,12 +867,12 @@ class GameContext
 			    .h = this->block_size,
 			};
 
-			SDL_SetRenderDrawColor(this->renderer, this->game.minigrid.block.color.r,
-					       this->game.minigrid.block.color.g,
-					       this->game.minigrid.block.color.b, 255);
+			SDL_SetRenderDrawColor(this->renderer, this->game.preview_block.color.r,
+					       this->game.preview_block.color.g,
+					       this->game.preview_block.color.b, 255);
 			SDL_RenderFillRect(renderer, &rect);
 		}
-		// End minigrid drawing
+		// End preview drawing
 
 		std::string message;
 		if (this->game.gameover) {
