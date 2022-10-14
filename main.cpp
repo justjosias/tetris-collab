@@ -33,6 +33,12 @@ struct RGB {
 	int b;
 };
 
+struct FilledBlock {
+	int x;
+	int y;
+	RGB color;
+};
+
 struct Location {
 	int x;
 	int y;
@@ -169,16 +175,31 @@ class Block
 			loc.y = mid - x;
 		}
 	}
+
+	bool can_move(int x, int y, vector<FilledBlock> *filled)
+	{
+		vector<Location> block_locations = this->coordinates();
+		for (const auto &floc : *filled) {
+			for (const auto &bloc : block_locations) {
+				if (bloc.x + x == floc.x && bloc.y + y == floc.y) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	bool can_descend(vector<FilledBlock> *filled, int height)
+	{
+		if (this->can_move(0, 1, filled) && this->max_y() < height - 1) {
+			return true;
+		}
+		return false;
+	}
 };
 
 struct Minigrid {
 	Block block;
-};
-
-struct FilledBlock {
-	int x;
-	int y;
-	RGB color;
 };
 
 class GameState
@@ -299,37 +320,16 @@ class GameState
 
 	void right()
 	{
-		if (can_move(1, 0) && block.max_x() < this->width - 1) {
+		if (block.can_move(1, 0, &filled) && block.max_x() < this->width - 1) {
 			block.offset_x += 1;
 		}
 	}
 
 	void left()
 	{
-		if (can_move(-1, 0) && block.min_x() > 0) {
+		if (block.can_move(-1, 0, &filled) && block.min_x() > 0) {
 			block.offset_x -= 1;
 		}
-	}
-
-	bool can_descend()
-	{
-		if (can_move(0, 1) && block.max_y() < this->height - 1) {
-			return true;
-		}
-		return false;
-	}
-
-	bool can_move(int x, int y)
-	{
-		vector<Location> block_locations = block.coordinates();
-		for (const auto &floc : filled) {
-			for (const auto &bloc : block_locations) {
-				if (bloc.x + x == floc.x && bloc.y + y == floc.y) {
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 
 	void clear_complete()
@@ -384,7 +384,7 @@ class GameState
 
 	void down()
 	{
-		if (can_descend()) {
+		if (block.can_descend(&filled, height)) {
 			block.offset_y += 1;
 			score += 1 * this->level;
 		} else {
@@ -397,6 +397,21 @@ class GameState
 		}
 	}
 
+	Block bottom()
+	{
+		Block tmp = this->block;
+		while (tmp.can_descend(&filled, height)) {
+			tmp.offset_y += 1;
+		}
+		return tmp;
+	}
+
+	void drop()
+	{
+		this->block = this->bottom();
+		this->down();
+	}
+
 	bool can_rotate()
 	{
 		Block next_block = this->block;
@@ -406,13 +421,13 @@ class GameState
 			if (this->is_filled(loc.x, loc.y)) {
 				return false;
 			} else if (loc.x > this->width - 1) {
-				if (this->can_move(-1, 0)) {
+				if (block.can_move(-1, 0, &filled)) {
 					this->left();
 					continue;
 				}
 				return false;
 			} else if (loc.x < 0) {
-				if (this->can_move(1, 0)) {
+				if (block.can_move(1, 0, &filled)) {
 					this->right();
 					continue;
 				}
@@ -435,7 +450,7 @@ class GameState
 
 	void rotate()
 	{
-		if (can_descend() && can_rotate()) {
+		if (block.can_descend(&filled, height) && can_rotate()) {
 			this->block.rotate();
 		}
 	}
@@ -646,6 +661,22 @@ class GameContext
 				SDL_RenderFillRect(renderer, &rect);
 			}
 
+			// Draw the shadow tetromino
+			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+			auto shadow = game.bottom();
+			for (const auto &loc : shadow.coordinates()) {
+				SDL_Rect rect = {
+				    .x = loc.x * this->block_size + this->game_offset.x,
+				    .y = loc.y * this->block_size + this->game_offset.y,
+				    .w = this->block_size,
+				    .h = this->block_size,
+				};
+
+				SDL_SetRenderDrawColor(this->renderer, shadow.color.r,
+						       shadow.color.g, shadow.color.b, 100);
+				SDL_RenderFillRect(renderer, &rect);
+			}
+
 			// Draw the filled blocks
 			for (const auto &loc : game.filled) {
 				SDL_Rect rect = {
@@ -770,6 +801,9 @@ int main()
 						ctx.game.rotate();
 						rotation_pressed = true;
 					}
+					break;
+				case SDLK_SPACE:
+					ctx.game.drop();
 					break;
 				default:
 					break;
