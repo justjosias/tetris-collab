@@ -834,7 +834,6 @@ int main()
 					ctx.game.left();
 					break;
 				case SDLK_DOWN:
-					ctx.game.score += 1 * ctx.game.level;
 					ctx.game.down();
 					break;
 				case SDLK_UP:
