@@ -692,7 +692,6 @@ class GameContext
 		}
 
 		// Draw Minigrid
-		auto mg_size = this->block_size * box_scale;
 		SDL_Rect mg_back = {
 		    .x = rightBorder + (this->block_size / 4),
 		    .y = this->block_size * (box_scale * 2 + 1),
@@ -702,16 +701,33 @@ class GameContext
 		SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 		SDL_RenderFillRect(renderer, &mg_back);
 
-		auto tmp_block_size = mg_size / this->game.minigrid.block.grid_size();
 		for (const auto &loc : this->game.minigrid.block.locations) {
-			if (tmp_block_size > this->block_size) {
-				tmp_block_size = this->block_size;
-			}
+
+			// Used for when the minigrid does not start in the upper left hand corner
+			// Takes the minimum x value and subtracts the lowest possible grid value
+			// (3) If the x is greater than 3, the multiplication will result in a
+			// number > 0 This will move the block to the upper left corner of the
+			// minigrid.
+			auto widthModifier = (game.minigrid.block.min_x() - 3) * 2;
+
+			// Converts the width and height of the block into pixels
+			auto blockWidth = (1 + widthModifier + game.minigrid.block.max_x() -
+					   game.minigrid.block.min_x()) *
+					  this->block_size;
+			auto blockHeight =
+			    (1 + game.minigrid.block.max_y() - game.minigrid.block.min_y()) *
+			    this->block_size;
+
+			// Designates the x and y coordinate of the minigrid
+			auto preview_x = ((box_scale * this->block_size) - blockWidth) / 2;
+			auto preview_y = ((box_scale * this->block_size) - blockHeight) / 2;
+
+			// Creates the rectangle for the minigrid drawing
 			SDL_Rect rect = {
-			    .x = loc.x * tmp_block_size + mg_back.x + block_size,
-			    .y = loc.y * tmp_block_size + mg_back.y + block_size,
-			    .w = tmp_block_size,
-			    .h = tmp_block_size,
+			    .x = loc.x * this->block_size + mg_back.x + preview_x,
+			    .y = loc.y * this->block_size + mg_back.y + preview_y,
+			    .w = this->block_size,
+			    .h = this->block_size,
 			};
 
 			SDL_SetRenderDrawColor(this->renderer, this->game.minigrid.block.color.r,
@@ -783,6 +799,19 @@ int main()
 			should_continue = false;
 			break;
 		case SDL_KEYDOWN:
+
+			std::cout << "width:" << 1 + ctx.game.block.max_x() - ctx.game.block.min_x()
+				  << std::endl;
+			std::cout << "height:"
+				  << 1 + ctx.game.block.max_y() - ctx.game.block.min_y()
+				  << std::endl;
+
+			std::cout << "min x:" << ctx.game.minigrid.block.min_x() << std::endl;
+			std::cout << "min y:" << ctx.game.minigrid.block.min_y() << std::endl;
+
+			std::cout << "max x:" << ctx.game.minigrid.block.max_x() << std::endl;
+			std::cout << "max y:" << ctx.game.minigrid.block.max_y() << std::endl;
+
 			if (!ctx.game.gameover) {
 				redraw = true;
 				switch (event.key.keysym.sym) {
