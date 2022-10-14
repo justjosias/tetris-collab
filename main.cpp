@@ -771,13 +771,17 @@ int main()
 						rotation_pressed = true;
 					}
 					break;
-				case SDLK_r: {
-					GameState g;
-					ctx.game = g;
-				} break;
 				default:
 					break;
 				}
+			}
+			// Unconditional keypresses
+			switch (event.key.keysym.sym) {
+			case SDLK_r: {
+				GameState g;
+				ctx.game = g;
+				ctx.game.gameover = false;
+			} break;
 			}
 			break;
 		case SDL_KEYUP:
