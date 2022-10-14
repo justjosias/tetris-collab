@@ -15,7 +15,7 @@ $ ./TETRIS
 
 ### WASM
 
-Requirement: emscripten.
+Requirements: LLVM and emscripten.
 
 ```
 $ make wasm
