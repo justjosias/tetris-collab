@@ -667,9 +667,6 @@ class GameContext
 			SDL_UpdateWindowSurface(this->window);
 			this->redraw = false;
 		}
-
-		// Keep the game from hogging all the CPU
-		SDL_Delay(10);
 	}
 
 	void draw()
@@ -929,6 +926,8 @@ int main()
 #else
 	while (ctx.should_continue) {
 		ctx.loop();
+		// Keep the game from hogging all the CPU
+		SDL_Delay(10);
 	}
 #endif
 
