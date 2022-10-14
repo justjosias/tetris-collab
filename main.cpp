@@ -450,7 +450,7 @@ class GameContext
 	SDL_Renderer *renderer;
 
 	// The height and width of the game window
-	int height = 800;
+	int height = 820;
 	int width = 630;
 
 	// The main font used for rendering text to the screen.
@@ -496,7 +496,7 @@ class GameContext
 		game.set_size(20, 10);
 		this->game = game;
 
-		this->game_offset = {0, 0};
+		this->game_offset = {10, 10};
 
 		TTF_Init();
 		this->font = TTF_OpenFont("Sans.ttf", 14);
@@ -539,7 +539,7 @@ class GameContext
 
 		SDL_Rect board = {
 		    .x = this->game_offset.x,
-		    .y = game_offset.y,
+		    .y = this->game_offset.y,
 		    .w = this->game.width * this->block_size,
 		    .h = this->game.height * this->block_size,
 		};
@@ -636,7 +636,7 @@ class GameContext
 			for (const auto &loc : game.block.coordinates()) {
 				SDL_Rect rect = {
 				    .x = loc.x * this->block_size + this->game_offset.x,
-				    .y = loc.y * this->block_size,
+				    .y = loc.y * this->block_size + this->game_offset.y,
 				    .w = this->block_size,
 				    .h = this->block_size,
 				};
@@ -650,7 +650,7 @@ class GameContext
 			for (const auto &loc : game.filled) {
 				SDL_Rect rect = {
 				    .x = loc.x * this->block_size + this->game_offset.x,
-				    .y = loc.y * this->block_size,
+				    .y = loc.y * this->block_size + this->game_offset.y,
 				    .w = this->block_size,
 				    .h = this->block_size,
 				};
@@ -806,7 +806,8 @@ int main()
 				SDL_GetWindowSize(ctx.window, &w, &h);
 				ctx.width = w;
 				ctx.height = h;
-				ctx.block_size = double(ctx.height) * 0.05;
+				ctx.block_size = double(ctx.height - ctx.game_offset.y) * 0.05;
+				ctx.game_offset = {ctx.block_size / 4, ctx.block_size / 4};
 				redraw = true;
 				break;
 			}
