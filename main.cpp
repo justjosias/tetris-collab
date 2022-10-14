@@ -540,6 +540,26 @@ class GameContext
 		SDL_SetWindowResizable(window, SDL_TRUE);
 	}
 
+	void resize(int w, int h)
+	{
+		this->width = w;
+		this->height = h;
+		this->block_size = double(this->height - this->game_offset.y) * 0.05;
+		this->game_offset = {this->block_size / 4, this->block_size / 4};
+	}
+
+	void pause()
+	{
+		this->paused = true;
+		Mix_Pause(-1);
+	}
+
+	void resume()
+	{
+		this->paused = false;
+		Mix_Resume(-1);
+	}
+
 	void draw()
 	{
 		// Number of digits in each statistic type
@@ -864,25 +884,18 @@ int main()
 			}
 			break;
 		case SDL_WINDOWEVENT:
+			redraw = true;
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_FOCUS_LOST:
-				ctx.paused = true;
-				redraw = true;
-				Mix_Pause(-1);
+				ctx.pause();
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
-				ctx.paused = false;
-				redraw = true;
-				Mix_Resume(-1);
+				ctx.resume();
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
 				int w, h;
 				SDL_GetWindowSize(ctx.window, &w, &h);
-				ctx.width = w;
-				ctx.height = h;
-				ctx.block_size = double(ctx.height - ctx.game_offset.y) * 0.05;
-				ctx.game_offset = {ctx.block_size / 4, ctx.block_size / 4};
-				redraw = true;
+				ctx.resize(w, h);
 				break;
 			}
 		default:
