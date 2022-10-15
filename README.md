@@ -4,6 +4,18 @@ Josias and Jacob's super epic Tetris game.
 
 ![photo showing what the game looks like](preview.png)
 
+## Gameplay
+
+Like any Tetris game, try to clear fit shapes into rows before they pile up to the top. Victory is impossible.
+
+Keys:
+* `right` and `left`: move block
+* `down`: speed up descent
+* `up`: rotate block
+* `space`: drop block
+* `r`: restart the game
+* `m`: mute or unmute the music
+
 ## Building
 
 ### Linux
