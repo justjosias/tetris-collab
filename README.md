@@ -9,10 +9,10 @@ Josias and Jacob's super epic Tetris game.
 Like any Tetris game, try to clear fit shapes into rows before they pile up to the top. Victory is impossible.
 
 Keys:
-* `right` and `left`: move block
+* `right` and `left`: move shape
 * `down`: speed up descent
-* `up`: rotate block
-* `space`: drop block
+* `up`: rotate shape
+* `space`: drop shape
 * `r`: restart the game
 * `m`: mute or unmute the music
 
