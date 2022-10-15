@@ -732,7 +732,7 @@ class GameContext
 		// Level board
 		SDL_Rect levelboard = {
 		    .x = rightBorder + (this->block_size / 4),
-		    .y = this->block_size * (box_scale + 1) - this->block_size / 2,
+		    .y = (this->block_size / 4 * 2) + (this->block_size * box_scale),
 		    .w = this->block_size * box_scale,
 		    .h = this->block_size * box_scale,
 		};
@@ -755,7 +755,24 @@ class GameContext
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
 
-		// Write words to the screen
+		SDL_Rect restart_back = {
+		    .x = rightBorder + (this->block_size / 4),
+		    .y = (this->block_size / 4 * 4) + (this->block_size * box_scale * 3),
+		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
+		    .h = restart_back.w,
+		};
+		SDL_RenderFillRect(renderer, &restart_back);
+
+		SDL_Rect mute_back = {
+		    .x = rightBorder + (this->block_size / 4 * 2) + (this->block_size * box_scale / 2),
+		    .y = (this->block_size / 4 * 4) + (this->block_size * box_scale * 3),
+		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
+		    .h = mute_back.w,
+		};
+		SDL_RenderFillRect(renderer, &mute_back);
+
+
+		// Variable for the color white
 		SDL_Color White = {255, 255, 255, 255};
 
 		// Write "SCORE"
@@ -831,7 +848,7 @@ class GameContext
 		// Draw Minigrid
 		SDL_Rect mg_back = {
 		    .x = rightBorder + (this->block_size / 4),
-		    .y = this->block_size * (box_scale * 2 + 1),
+		    .y = (this->block_size / 4 * 3) + (this->block_size * box_scale * 2),
 		    .w = this->block_size * box_scale,
 		    .h = this->block_size * box_scale,
 		};
