@@ -22,9 +22,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 // I love this library
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -219,7 +219,8 @@ class GameState
 
 	// The current score of the player. Score is added when:
 	// * A tetromino descends (1 * level)
-	// * A row is cleared ((rows * 100) * rows, if less than 3, otherwise 2000. Multiplied by level)
+	// * A row is cleared ((rows * 100) * rows, if less than 3, otherwise 2000. Multiplied by
+	// level)
 	// * With a complete clear, the former rule applies and is also multiplied by 10.
 	int score = 0;
 
@@ -470,8 +471,9 @@ class GameState
 	}
 };
 
-class Button {
-public:
+class Button
+{
+      public:
 	std::string id;
 	SDL_Rect box;
 	SDL_Surface *image;
@@ -569,38 +571,40 @@ class GameContext
 
 		this->last_time = SDL_GetTicks();
 
-
 		this->buttons = {
-			Button {
-				.id = "replay",
-				.box = SDL_Rect {
-					.x = 0,
-					.y = 0,
-					.w = 0,
-					.h = 0,
-				},
-				.image = IMG_Load("assets/replay.png"),
-			},
-			Button {
-				.id = "mute",
-				.box = SDL_Rect {
-					.x = 0,
-					.y = 0,
-					.w = 0,
-					.h = 0,
-				},
-				.image = IMG_Load("assets/mute.png"),
-			},
-			Button {
-				.id = "unmute",
-				.box = SDL_Rect {
-					.x = 0,
-					.y = 0,
-					.w = 0,
-					.h = 0,
-				},
-				.image = IMG_Load("assets/unmute.png"),
-			},
+		    Button{
+			.id = "replay",
+			.box =
+			    SDL_Rect{
+				.x = 0,
+				.y = 0,
+				.w = 0,
+				.h = 0,
+			    },
+			.image = IMG_Load("assets/replay.png"),
+		    },
+		    Button{
+			.id = "mute",
+			.box =
+			    SDL_Rect{
+				.x = 0,
+				.y = 0,
+				.w = 0,
+				.h = 0,
+			    },
+			.image = IMG_Load("assets/mute.png"),
+		    },
+		    Button{
+			.id = "unmute",
+			.box =
+			    SDL_Rect{
+				.x = 0,
+				.y = 0,
+				.w = 0,
+				.h = 0,
+			    },
+			.image = IMG_Load("assets/unmute.png"),
+		    },
 		};
 	}
 
@@ -727,7 +731,7 @@ class GameContext
 				for (auto &button : this->buttons) {
 					if (button.contains(x, y) && button.visible) {
 						this->redraw = true;
-					        if (button.id == "replay") {
+						if (button.id == "replay") {
 							this->reset();
 							break;
 						}
@@ -854,34 +858,34 @@ class GameContext
 
 		SDL_Rect reset_back = {
 		    .x = rightBorder + (this->block_size / 4),
-			.y = (this->block_size) + (this->block_size * box_scale * 3),
-			.w = (this->block_size * box_scale / 2) - this->block_size / 4,
-			.h = reset_back.w,
+		    .y = (this->block_size) + (this->block_size * box_scale * 3),
+		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
+		    .h = reset_back.w,
 		};
 		SDL_RenderFillRect(renderer, &reset_back);
 
 		SDL_Rect mute_back = {
 		    .x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
-					.y = (this->block_size) + (this->block_size * box_scale * 3),
-					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
-					.h = mute_back.w,
+		    .y = (this->block_size) + (this->block_size * box_scale * 3),
+		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
+		    .h = mute_back.w,
 		};
 		SDL_RenderFillRect(renderer, &mute_back);
 
 		for (auto &button : this->buttons) {
 			if (button.id == "replay") {
 				button.box = {
-					.x = reset_back.x + (block_size / 3),
-					.y = reset_back.y + (block_size / 3),
-					.w = reset_back.w - (block_size / 2),
-					.h = reset_back.h - (block_size / 2),
+				    .x = reset_back.x + (block_size / 3),
+				    .y = reset_back.y + (block_size / 3),
+				    .w = reset_back.w - (block_size / 2),
+				    .h = reset_back.h - (block_size / 2),
 				};
 			} else if (button.id == "mute" || button.id == "unmute") {
 				button.box = {
-					.x = mute_back.x + (block_size / 3),
-					.y = mute_back.y + (block_size / 3),
-					.w = mute_back.w - (block_size / 2),
-					.h = mute_back.h - (block_size / 2),
+				    .x = mute_back.x + (block_size / 3),
+				    .y = mute_back.y + (block_size / 3),
+				    .w = mute_back.w - (block_size / 2),
+				    .h = mute_back.h - (block_size / 2),
 				};
 			}
 
@@ -898,10 +902,11 @@ class GameContext
 					button.visible = false;
 				}
 			}
-			
+
 			if (button.visible) {
 				SDL_RenderFillRect(renderer, &button.box);
-				auto *texture = SDL_CreateTextureFromSurface(renderer, button.image);
+				auto *texture =
+				    SDL_CreateTextureFromSurface(renderer, button.image);
 				SDL_RenderCopy(renderer, texture, nullptr, &button.box);
 			}
 		}
@@ -991,9 +996,9 @@ class GameContext
 
 		for (const auto &loc : this->game.preview_block.locations) {
 
-			// Used for when the preview box does not start in the upper left hand corner
-			// Takes the minimum x value and subtracts the lowest possible grid value
-			// (3) If the x is greater than 3, the multiplication will result in a
+			// Used for when the preview box does not start in the upper left hand
+			// corner Takes the minimum x value and subtracts the lowest possible grid
+			// value (3) If the x is greater than 3, the multiplication will result in a
 			// number > 0 This will move the block to the upper left corner of the
 			// preview box.
 			auto widthModifier = (game.preview_block.min_x() - 3) * 2;
@@ -1061,15 +1066,12 @@ class GameContext
 };
 
 GameContext ctx;
-void do_loop()
-{
-	ctx.loop();
-}
+void do_loop() { ctx.loop(); }
 
 int main()
 {
 #ifdef __EMSCRIPTEN__
-        emscripten_set_main_loop(do_loop, 0, 1);
+	emscripten_set_main_loop(do_loop, 0, 1);
 #else
 	while (ctx.should_continue) {
 		ctx.loop();
