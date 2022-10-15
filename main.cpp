@@ -686,6 +686,17 @@ class GameContext
 			case SDLK_r:
 				this->reset();
 				break;
+			case SDLK_m:
+				if (this->mute) {
+					this->mute = false;
+					Mix_Volume(-1, 20);
+				} else {
+					this->mute = true;
+					Mix_Volume(-1, 0);
+				}
+				break;
+			default:
+				break;
 			}
 			break;
 		case SDL_KEYUP:
