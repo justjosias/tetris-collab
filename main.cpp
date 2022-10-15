@@ -852,20 +852,36 @@ class GameContext
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
 
+		SDL_Rect reset_back = {
+		    .x = rightBorder + (this->block_size / 4),
+			.y = (this->block_size) + (this->block_size * box_scale * 3),
+			.w = (this->block_size * box_scale / 2) - this->block_size / 4,
+			.h = reset_back.w,
+		};
+		SDL_RenderFillRect(renderer, &reset_back);
+
+		SDL_Rect mute_back = {
+		    .x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
+					.y = (this->block_size) + (this->block_size * box_scale * 3),
+					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
+					.h = mute_back.w,
+		};
+		SDL_RenderFillRect(renderer, &mute_back);
+
 		for (auto &button : this->buttons) {
 			if (button.id == "replay") {
 				button.box = {
-					.x = rightBorder + (this->block_size / 4),
-					.y = (this->block_size) + (this->block_size * box_scale * 3),
-					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
-					.h = button.box.w,
+					.x = reset_back.x + (block_size / 3),
+					.y = reset_back.y + (block_size / 3),
+					.w = reset_back.w - (block_size / 2),
+					.h = reset_back.h - (block_size / 2),
 				};
 			} else if (button.id == "mute" || button.id == "unmute") {
 				button.box = {
-					.x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
-					.y = (this->block_size) + (this->block_size * box_scale * 3),
-					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
-					.h = button.box.w,
+					.x = mute_back.x + (block_size / 3),
+					.y = mute_back.y + (block_size / 3),
+					.w = mute_back.w - (block_size / 2),
+					.h = mute_back.h - (block_size / 2),
 				};
 			}
 
