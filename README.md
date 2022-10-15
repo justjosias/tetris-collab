@@ -2,7 +2,7 @@
 
 Josias and Jacob's super epic Tetris game.
 
-![alt text](preview.png)
+![photo showing what the game looks like](preview.png)
 
 ## Building
 
