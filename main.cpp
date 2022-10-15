@@ -562,7 +562,7 @@ class GameContext
 		}
 
 		Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-		Mix_Volume(-1, 20);
+		Mix_Volume(-1, 50);
 
 		this->music = Mix_LoadWAV("assets/Korobeiniki.wav");
 		Mix_PlayChannel(-1, this->music, -1);
@@ -693,7 +693,7 @@ class GameContext
 			case SDLK_m:
 				if (this->mute) {
 					this->mute = false;
-					Mix_Volume(-1, 20);
+					Mix_Volume(-1, 80);
 				} else {
 					this->mute = true;
 					Mix_Volume(-1, 0);
@@ -737,7 +737,7 @@ class GameContext
 						}
 						if (button.id == "unmute") {
 							this->mute = false;
-							Mix_Volume(-1, 20);
+							Mix_Volume(-1, 80);
 							break;
 						}
 						if (button.id == "mute") {
