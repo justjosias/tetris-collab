@@ -757,15 +757,15 @@ class GameContext
 
 		SDL_Rect restart_back = {
 		    .x = rightBorder + (this->block_size / 4),
-		    .y = (this->block_size / 4 * 4) + (this->block_size * box_scale * 3),
+		    .y = (this->block_size) + (this->block_size * box_scale * 3),
 		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
 		    .h = restart_back.w,
 		};
 		SDL_RenderFillRect(renderer, &restart_back);
 
 		SDL_Rect mute_back = {
-		    .x = rightBorder + (this->block_size / 4 * 2) + (this->block_size * box_scale / 2),
-		    .y = (this->block_size / 4 * 4) + (this->block_size * box_scale * 3),
+		    .x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
+		    .y = (this->block_size) + (this->block_size * box_scale * 3),
 		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
 		    .h = mute_back.w,
 		};
