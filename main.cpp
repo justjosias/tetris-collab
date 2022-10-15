@@ -529,6 +529,8 @@ class GameContext
 
 	vector<Button> buttons;
 
+	bool mute = false;
+
 	// Initializes SDL and the game state
 	GameContext()
 	{
@@ -566,6 +568,7 @@ class GameContext
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->last_time = SDL_GetTicks();
+
 
 		this->buttons = {
 			Button {
@@ -711,10 +714,20 @@ class GameContext
 				auto x = this->event.button.x;
 				auto y = this->event.button.y;
 				for (auto &button : this->buttons) {
-					if (button.contains(x, y)) {
+					if (button.contains(x, y) && button.visible) {
 						this->redraw = true;
 					        if (button.id == "replay") {
 							this->reset();
+							break;
+						}
+						if (button.id == "unmute") {
+							this->mute = false;
+							Mix_Volume(-1, 20);
+							break;
+						}
+						if (button.id == "mute") {
+							this->mute = true;
+							Mix_Volume(-1, 0);
 							break;
 						}
 					}
@@ -844,10 +857,25 @@ class GameContext
 					.h = button.box.w,
 				};
 			}
+
+			if (button.id == "mute") {
+				if (this->mute) {
+					button.visible = false;
+				} else {
+					button.visible = true;
+				}
+			} else if (button.id == "unmute") {
+				if (this->mute) {
+					button.visible = true;
+				} else {
+					button.visible = false;
+				}
+			}
+			
 			if (button.visible) {
 				SDL_RenderFillRect(renderer, &button.box);
 				auto *texture = SDL_CreateTextureFromSurface(renderer, button.image);
-				SDL_RenderCopy(renderer, texture, &button.box, nullptr);
+				SDL_RenderCopy(renderer, texture, nullptr, &button.box);
 			}
 		}
 
