@@ -6,7 +6,7 @@ LDFLAGS=`pkg-config --cflags --libs sdl2 SDL2_ttf SDL2_mixer SDL2_image`
 CPPFILES=main.cpp
 
 WASMFLAGS=-s ALLOW_MEMORY_GROWTH=1
-WASMLIBS=-s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -s USE_SDL_IMAGE=2
+WASMLIBS=-s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='["png"]'
 ASSETS=assets/
 
 build:
