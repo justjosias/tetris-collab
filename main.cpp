@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -469,6 +470,22 @@ class GameState
 	}
 };
 
+class Button {
+public:
+	std::string id;
+	SDL_Rect box;
+	SDL_Surface *image;
+	bool visible = true;
+
+	bool contains(int x, int y)
+	{
+		if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
+			return true;
+		}
+		return false;
+	}
+};
+
 class GameContext
 {
       public:
@@ -510,6 +527,8 @@ class GameContext
 	bool should_continue = true;
 	bool rotation_pressed = false;
 
+	vector<Button> buttons;
+
 	// Initializes SDL and the game state
 	GameContext()
 	{
@@ -547,6 +566,39 @@ class GameContext
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
 		this->last_time = SDL_GetTicks();
+
+		this->buttons = {
+			Button {
+				.id = "replay",
+				.box = SDL_Rect {
+					.x = 0,
+					.y = 0,
+					.w = 0,
+					.h = 0,
+				},
+				.image = IMG_Load("assets/replay.png"),
+			},
+			Button {
+				.id = "mute",
+				.box = SDL_Rect {
+					.x = 0,
+					.y = 0,
+					.w = 0,
+					.h = 0,
+				},
+				.image = IMG_Load("assets/mute.png"),
+			},
+			Button {
+				.id = "unmute",
+				.box = SDL_Rect {
+					.x = 0,
+					.y = 0,
+					.w = 0,
+					.h = 0,
+				},
+				.image = IMG_Load("assets/unmute.png"),
+			},
+		};
 	}
 
 	void resize(int w, int h)
@@ -574,6 +626,14 @@ class GameContext
 	{
 		this->paused = false;
 		Mix_Resume(-1);
+	}
+
+	void reset()
+	{
+		GameState g;
+		this->game = g;
+		Mix_HaltChannel(-1);
+		Mix_PlayChannel(-1, this->music, -1);
 	}
 
 	void loop()
@@ -620,12 +680,9 @@ class GameContext
 			}
 			// Unconditional keypresses
 			switch (this->event.key.keysym.sym) {
-			case SDLK_r: {
-				GameState g;
-				this->game = g;
-				Mix_HaltChannel(-1);
-				Mix_PlayChannel(-1, this->music, -1);
-			} break;
+			case SDLK_r:
+				this->reset();
+				break;
 			}
 			break;
 		case SDL_KEYUP:
@@ -648,6 +705,22 @@ class GameContext
 				this->resize(w, h);
 				break;
 			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (this->event.button.button == SDL_BUTTON_LEFT) {
+				auto x = this->event.button.x;
+				auto y = this->event.button.y;
+				for (auto &button : this->buttons) {
+					if (button.contains(x, y)) {
+						this->redraw = true;
+					        if (button.id == "replay") {
+							this->reset();
+							break;
+						}
+					}
+				}
+			}
+			break;
 		default:
 			break;
 		}
@@ -755,22 +828,28 @@ class GameContext
 		SDL_RenderFillRect(renderer, &livelevel);
 		// End level board
 
-		SDL_Rect restart_back = {
-		    .x = rightBorder + (this->block_size / 4),
-		    .y = (this->block_size) + (this->block_size * box_scale * 3),
-		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
-		    .h = restart_back.w,
-		};
-		SDL_RenderFillRect(renderer, &restart_back);
-
-		SDL_Rect mute_back = {
-		    .x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
-		    .y = (this->block_size) + (this->block_size * box_scale * 3),
-		    .w = (this->block_size * box_scale / 2) - this->block_size / 4,
-		    .h = mute_back.w,
-		};
-		SDL_RenderFillRect(renderer, &mute_back);
-
+		for (auto &button : this->buttons) {
+			if (button.id == "replay") {
+				button.box = {
+					.x = rightBorder + (this->block_size / 4),
+					.y = (this->block_size) + (this->block_size * box_scale * 3),
+					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
+					.h = button.box.w,
+				};
+			} else if (button.id == "mute" || button.id == "unmute") {
+				button.box = {
+					.x = rightBorder + (this->block_size / 2) + (this->block_size * box_scale / 2),
+					.y = (this->block_size) + (this->block_size * box_scale * 3),
+					.w = (this->block_size * box_scale / 2) - this->block_size / 4,
+					.h = button.box.w,
+				};
+			}
+			if (button.visible) {
+				SDL_RenderFillRect(renderer, &button.box);
+				auto *texture = SDL_CreateTextureFromSurface(renderer, button.image);
+				SDL_RenderCopy(renderer, texture, &button.box, nullptr);
+			}
+		}
 
 		// Variable for the color white
 		SDL_Color White = {255, 255, 255, 255};
