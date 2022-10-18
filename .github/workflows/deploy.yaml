@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: lovasoa/setup-emscripten@v1
+      - uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          folder: dist
+
+      # Builds the project
+      - run: |
+          make wasm
+          mv dist/TETRIS.html dist/index.html
+          
