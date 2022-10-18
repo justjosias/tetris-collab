@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: mymindstorm/setup-emsdk@v11
+      - uses: actions/cache@v3
+        with:
+          path: ~/.emscripten_cache
 
       # Builds the project
       - run: |
