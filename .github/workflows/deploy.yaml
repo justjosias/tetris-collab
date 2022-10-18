@@ -21,6 +21,7 @@ jobs:
       - run: |
           make wasm
           mv dist/TETRIS.html dist/index.html
+          mv assets dist
           
       # Deploys dist folder to pages
       - uses: JamesIves/github-pages-deploy-action@v4.4.1
