@@ -13,12 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: mymindstorm/setup-emsdk@v11
-      - uses: JamesIves/github-pages-deploy-action@v4.4.1
-        with:
-          folder: dist
 
       # Builds the project
       - run: |
           make wasm
           mv dist/TETRIS.html dist/index.html
+          
+      # Deploys dist folder to pages
+      - uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          folder: dist
           
