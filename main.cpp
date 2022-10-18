@@ -528,6 +528,7 @@ class GameContext
 	bool redraw = true;
 	bool should_continue = true;
 	bool rotation_pressed = false;
+	bool space_pressed = false;
 
 	vector<Button> buttons;
 
@@ -679,7 +680,10 @@ class GameContext
 					}
 					break;
 				case SDLK_SPACE:
-					this->game.drop();
+					if (!this->space_pressed) {
+						this->game.drop();
+						this->space_pressed = true;
+					}
 					break;
 				default:
 					break;
@@ -704,8 +708,13 @@ class GameContext
 			}
 			break;
 		case SDL_KEYUP:
-			if (this->event.key.keysym.sym == SDLK_UP) {
+			switch (this->event.key.keysym.sym) {
+			case SDLK_UP:
 				this->rotation_pressed = false;
+				break;
+			case SDLK_SPACE:
+				this->space_pressed = false;
+				break;
 			}
 			break;
 		case SDL_WINDOWEVENT:
