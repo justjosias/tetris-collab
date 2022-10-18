@@ -12,7 +12,7 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-      - uses: lovasoa/setup-emscripten@v1
+      - uses: mymindstorm/setup-emsdk@v11
       - uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           folder: dist
